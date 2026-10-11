@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — Multiflow</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<meta name="description" content="Multiflow pricing — WhatsApp Marketing and Utility message packs, plus monthly Automation subscriptions. Combine them for the complete stack.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* Pricing-page specific, built on the site design tokens */
+.jump-tabs{ display:flex; gap:10px; flex-wrap:wrap; margin-top:28px; }
+.jump-tabs a{ border:1.5px solid rgba(231,234,243,.28); color:var(--text-on-ink); padding:9px 18px; border-radius:999px; font-size:13px; font-weight:600; transition:border-color .15s ease, color .15s ease; }
+.jump-tabs a:hover{ border-color:var(--teal); color:var(--teal); }
+.switch-row{ display:flex; justify-content:center; margin:6px 0 32px; }
+.switchbox{ display:flex; background:var(--paper-alt); border:1px solid var(--line); padding:4px; border-radius:999px; }
+.switchbox button{ border:0; background:transparent; cursor:pointer; padding:9px 24px; border-radius:999px; font-weight:700; font-size:12px; font-family:'JetBrains Mono',monospace; letter-spacing:.06em; color:var(--text-muted); }
+.switchbox button.active{ background:var(--violet); color:#fff; }
+.price-card .btn{ width:100%; justify-content:center; }
+.price-card .pack-tag{ display:inline-block; background:#EAF8F4; color:#0E7C6B; border-radius:999px; padding:4px 10px; font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; letter-spacing:.06em; margin-bottom:12px; }
+.sum-band{ margin-top:28px; background:var(--ink); color:var(--text-on-ink); border-radius:16px; padding:28px; display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:18px; align-items:center; }
+.sum-band h3{ margin:0 0 6px; font-size:16px; color:#fff; }
+.sum-band p{ margin:0; color:#9AA3B8; font-size:12.5px; line-height:1.6; }
+.sum-band .lab{ font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:#9AA3B8; display:block; margin-bottom:4px; }
+.sum-band .num{ font-family:'Instrument Serif',serif; font-size:1.7rem; }
+.compare-wrap{ overflow:auto; background:var(--card); border:1px solid var(--line); border-radius:16px; margin-top:28px; }
+table.compare{ border-collapse:collapse; width:100%; min-width:900px; }
+.compare th, .compare td{ padding:14px 16px; border-bottom:1px solid var(--line); text-align:left; font-size:13.5px; }
+.compare tr:last-child td{ border-bottom:0; }
+.compare th{ font-family:'JetBrains Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); background:var(--paper-alt); }
+.compare .yes{ color:var(--teal); font-weight:700; }
+.compare .no{ color:#B9BFCB; }
+@media(max-width:900px){ .sum-band{ grid-template-columns:1fr 1fr; } }
+@media(max-width:560px){ .sum-band{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<script src="assets/partials.js"></script>
+
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Pricing</div>
+    <div class="eyebrow">Pricing</div>
+    <h1 class="h1 display">Choose WhatsApp messaging, automation — or both.</h1>
+    <p class="lede">WhatsApp Marketing and Utility messages are priced as one-time message packs. Automation is a monthly subscription. Combine them when you need the complete stack.</p>
+    <div class="jump-tabs">
+      <a href="#whatsapp">WhatsApp Marketing</a>
+      <a href="#whatsapp" onclick="setWpMode('utility')">WhatsApp Utility</a>
+      <a href="#automation">Automation</a>
+      <a href="#combined">WhatsApp + Automation</a>
+      <a href="#compare">Compare</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="whatsapp">
+  <div class="wrap">
+    <div class="section-head center" style="margin-left:auto; margin-right:auto;">
+      <div class="eyebrow">WhatsApp message pricing</div>
+      <h2 class="h2 display">One-time message packs, no monthly cost</h2>
+      <p class="lede" style="margin:0 auto;">Choose the message category you need — Marketing for campaigns and promotions, Utility for order updates and service messages.</p>
+    </div>
+
+    <div class="switch-row">
+      <div class="switchbox">
+        <button class="active" id="wpMarketingMode" onclick="setWpMode('marketing')">MARKETING</button>
+        <button id="wpUtilityMode" onclick="setWpMode('utility')">UTILITY</button>
+      </div>
+    </div>
+
+    <div id="wpMarketingSection">
+      <div class="price-grid">
+        <div class="price-card">
+          <span class="badge mono">SILVER</span>
+          <div class="price">₹8,600 <small>one-time</small></div>
+          <span class="pack-tag">10,000 MESSAGES</span>
+          <p>Marketing messaging for businesses starting with WhatsApp campaigns.</p>
+          <ul>
+            <li>10,000 Marketing messages</li>
+            <li>₹0.86 per message</li>
+            <li>WhatsApp Business API setup</li>
+            <li>Templates &amp; campaigns</li>
+            <li>Campaign reporting</li>
+            <li>Inbox &amp; contact tools</li>
+          </ul>
+          <a class="btn btn--ghost" href="buy-online.html?plan=Marketing Silver — 10,000 messages">Buy Marketing Pack</a>
+        </div>
+        <div class="price-card featured">
+          <span class="badge mono">GOLD</span>
+          <div class="price">₹41,000 <small>one-time</small></div>
+          <span class="pack-tag">50,000 MESSAGES</span>
+          <p>Higher-volume marketing campaigns with a lower per-message rate.</p>
+          <ul>
+            <li>50,000 Marketing messages</li>
+            <li>₹0.82 per message</li>
+            <li>Templates &amp; bulk campaigns</li>
+            <li>Advanced campaign reporting</li>
+            <li>Inbox &amp; contact management</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn--primary" href="buy-online.html?plan=Marketing Gold — 50,000 messages">Buy Marketing Pack</a>
+        </div>
+        <div class="price-card">
+          <span class="badge mono">PLATINUM</span>
+          <div class="price">₹80,000 <small>one-time</small></div>
+          <span class="pack-tag">1,00,000 MESSAGES</span>
+          <p>Large-volume Marketing messaging for established businesses.</p>
+          <ul>
+            <li>1,00,000 Marketing messages</li>
+            <li>₹0.80 per message</li>
+            <li>Advanced campaigns</li>
+            <li>Delivery &amp; analytics reports</li>
+            <li>Team access</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn--ghost" href="buy-online.html?plan=Marketing Platinum — 1,00,000 messages">Buy Marketing Pack</a>
+        </div>
+        <div class="price-card">
+          <span class="badge mono">DIAMOND</span>
+          <div class="price">Custom <small>high volume</small></div>
+          <span class="pack-tag">CUSTOM PRICING</span>
+          <p>Custom commercial terms for high-volume marketing operations.</p>
+          <ul>
+            <li>Custom message volume</li>
+            <li>Custom per-message pricing</li>
+            <li>Multiple numbers where supported</li>
+            <li>Advanced API requirements</li>
+            <li>Custom onboarding</li>
+            <li>Dedicated assistance</li>
+          </ul>
+          <a class="btn btn--ghost" href="contact.html#demo">Talk to Sales</a>
+        </div>
+      </div>
+      <div class="notice" style="margin-top:22px;"><b>Marketing rate:</b> 10K = ₹8,600 (₹0.86/message) · 50K = ₹41,000 (₹0.82/message) · 1L = ₹80,000 (₹0.80/message). Prices exclude GST — applicable taxes and Meta/WhatsApp conversation charges are shown separately at checkout.</div>
+    </div>
+
+    <div id="wpUtilitySection" style="display:none;">
+      <div class="price-grid">
+        <div class="price-card">
+          <span class="badge mono">SILVER</span>
+          <div class="price">₹3,000 <small>one-time</small></div>
+          <span class="pack-tag">10,000 MESSAGES</span>
+          <p>Utility messaging for customer updates and service communication.</p>
+          <ul>
+            <li>10,000 Utility messages</li>
+            <li>API setup assistance</li>
+            <li>Transactional templates</li>
+            <li>Delivery reports</li>
+            <li>Standard support</li>
+          </ul>
+          <a class="btn btn--ghost" href="buy-online.html?plan=Utility Silver — 10,000 messages">Buy Utility Pack</a>
+        </div>
+        <div class="price-card featured">
+          <span class="badge mono">GOLD</span>
+          <div class="price">₹9,000 <small>one-time</small></div>
+          <span class="pack-tag">50,000 MESSAGES</span>
+          <p>Utility messaging for businesses with regular customer updates.</p>
+          <ul>
+            <li>50,000 Utility messages</li>
+            <li>Transactional templates</li>
+            <li>Delivery reporting</li>
+            <li>API &amp; webhook support</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn--primary" href="buy-online.html?plan=Utility Gold — 50,000 messages">Buy Utility Pack</a>
+        </div>
+        <div class="price-card">
+          <span class="badge mono">PLATINUM</span>
+          <div class="price">₹15,000 <small>one-time</small></div>
+          <span class="pack-tag">1,00,000 MESSAGES</span>
+          <p>High-volume utility messaging for customer operations.</p>
+          <ul>
+            <li>1,00,000 Utility messages</li>
+            <li>Transactional templates</li>
+            <li>Analytics &amp; reports</li>
+            <li>Advanced API support</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn--ghost" href="buy-online.html?plan=Utility Platinum — 1,00,000 messages">Buy Utility Pack</a>
+        </div>
+        <div class="price-card">
+          <span class="badge mono">DIAMOND</span>
+          <div class="price">Custom <small>high volume</small></div>
+          <span class="pack-tag">CUSTOM PRICING</span>
+          <p>Custom Utility pricing for larger or specialized communication volumes.</p>
+          <ul>
+            <li>Custom message volume</li>
+            <li>Custom pricing</li>
+            <li>Advanced setup assistance</li>
+            <li>Higher-volume operations</li>
+            <li>Dedicated assistance</li>
+          </ul>
+          <a class="btn btn--ghost" href="contact.html#demo">Talk to Sales</a>
+        </div>
+      </div>
+      <div class="notice" style="margin-top:22px;"><b>Utility rate:</b> 10K = ₹3,000 · 50K = ₹9,000 · 1L = ₹15,000. Prices exclude GST — applicable taxes and Meta/WhatsApp conversation charges are shown separately at checkout.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="automation">
+  <div class="wrap">
+    <div class="section-head center" style="margin-left:auto; margin-right:auto;">
+      <div class="eyebrow">WhatsApp Automation</div>
+      <h2 class="h2 display">Automation is a monthly subscription</h2>
+      <p class="lede" style="margin:0 auto;">Pick a plan based on how many workflows you run and how often they execute. Message credits are purchased separately.</p>
+    </div>
+    <div class="price-grid" style="margin-top:36px;">
+      <div class="price-card">
+        <span class="badge mono">STARTER</span>
+        <div class="price">₹999 <small>/ month</small></div>
+        <span class="pack-tag">5 ACTIVE WORKFLOWS</span>
+        <p>For simple customer journeys and basic automation.</p>
+        <ul>
+          <li>5 active workflows</li>
+          <li>2,000 executions / month</li>
+          <li>Basic triggers &amp; conditions</li>
+          <li>Send message / template</li>
+          <li>Tags &amp; contact updates</li>
+          <li>Basic execution logs</li>
+        </ul>
+        <a class="btn btn--ghost" href="buy-online.html?plan=Automation Starter — ₹999/month">Start Automation</a>
+      </div>
+      <div class="price-card">
+        <span class="badge mono">GROWTH</span>
+        <div class="price">₹1,999 <small>/ month</small></div>
+        <span class="pack-tag">20 ACTIVE WORKFLOWS</span>
+        <p>For growing teams with advanced workflow requirements.</p>
+        <ul>
+          <li>20 active workflows</li>
+          <li>10,000 executions / month</li>
+          <li>Branches &amp; advanced conditions</li>
+          <li>Webhooks &amp; API calls</li>
+          <li>Agent assignment &amp; handover</li>
+          <li>Advanced logs &amp; analytics</li>
+        </ul>
+        <a class="btn btn--ghost" href="buy-online.html?plan=Automation Growth — ₹1,999/month">Start Automation</a>
+      </div>
+      <div class="price-card featured">
+        <span class="badge mono">PRO · AI READY</span>
+        <div class="price">₹3,999 <small>/ month</small></div>
+        <span class="pack-tag">50 ACTIVE WORKFLOWS</span>
+        <p>For advanced automation, AI responses and scale.</p>
+        <ul>
+          <li>50 active workflows</li>
+          <li>50,000 executions / month</li>
+          <li>Advanced workflow builder</li>
+          <li>AI responses &amp; intent detection</li>
+          <li>Knowledge base &amp; AI rules</li>
+          <li>Human handover &amp; priority support</li>
+        </ul>
+        <a class="btn btn--primary" href="buy-online.html?plan=Automation Pro — ₹3,999/month">Start Automation</a>
+      </div>
+      <div class="price-card">
+        <span class="badge mono">ENTERPRISE</span>
+        <div class="price">Custom <small>high volume</small></div>
+        <span class="pack-tag">100+ WORKFLOWS</span>
+        <p>For larger teams, resellers and custom automation infrastructure.</p>
+        <ul>
+          <li>100+ active workflows</li>
+          <li>Custom execution volume</li>
+          <li>Multiple WhatsApp numbers</li>
+          <li>Custom integrations</li>
+          <li>Custom AI &amp; infrastructure</li>
+          <li>Dedicated support</li>
+        </ul>
+        <a class="btn btn--ghost" href="contact.html#demo">Talk to Sales</a>
+      </div>
+    </div>
+    <div class="notice" style="margin-top:22px;"><b>Automation subscription:</b> billed monthly. WhatsApp message credits are not included in the automation subscription unless a combined plan explicitly says so.</div>
+  </div>
+</section>
+
+<section class="section" id="combined">
+  <div class="wrap">
+    <div class="section-head center" style="margin-left:auto; margin-right:auto;">
+      <div class="eyebrow">WhatsApp + Automation</div>
+      <h2 class="h2 display">The complete stack, bundled</h2>
+      <p class="lede" style="margin:0 auto;">Choose whether your WhatsApp usage is Marketing or Utility, then pair it with an Automation plan.</p>
+    </div>
+
+    <div class="switch-row" style="margin-top:26px;">
+      <div class="switchbox">
+        <button class="active" id="marketingMode" onclick="setMode('marketing')">MARKETING</button>
+        <button id="utilityMode" onclick="setMode('utility')">UTILITY</button>
+      </div>
+    </div>
+
+    <div class="price-grid" id="bundleGrid"></div>
+
+    <div class="sum-band">
+      <div>
+        <h3>How the bundle works</h3>
+        <p>The WhatsApp message pack is a one-time purchase at Marketing or Utility rates. Automation renews monthly on the selected plan.</p>
+      </div>
+      <div><span class="lab">Message pack</span><span class="num" id="sumMessage">₹8,600</span></div>
+      <div><span class="lab">Automation / month</span><span class="num" id="sumAuto">₹999</span></div>
+      <div><span class="lab">First month</span><span class="num" id="sumTotal">₹9,599</span></div>
+    </div>
+
+    <div class="notice" style="margin-top:22px;"><b>Renewal example:</b> buy 10K Marketing + Automation Starter and your first month is ₹9,599. Next month only the ₹999 automation subscription renews — the message pack doesn't auto-renew. When you need more messages, buy another Marketing or Utility pack.</div>
+  </div>
+</section>
+
+<section class="section section-alt" id="compare">
+  <div class="wrap">
+    <div class="section-head center" style="margin-left:auto; margin-right:auto;">
+      <div class="eyebrow">Compare</div>
+      <h2 class="h2 display">Complete pricing comparison</h2>
+      <p class="lede" style="margin:0 auto;">Everything separated clearly, so you know exactly what you're paying for.</p>
+    </div>
+    <div class="compare-wrap">
+      <table class="compare">
+        <tr><th>Item</th><th>WhatsApp Marketing</th><th>WhatsApp Utility</th><th>Automation</th><th>WhatsApp + Automation</th></tr>
+        <tr><td>Billing model</td><td>One-time message pack</td><td>One-time message pack</td><td>Monthly subscription</td><td>Message pack + monthly automation</td></tr>
+        <tr><td>10K price</td><td>₹8,600</td><td>₹3,000</td><td>₹999/month Starter</td><td>Depends on combination</td></tr>
+        <tr><td>50K price</td><td>₹41,000</td><td>₹9,000</td><td>₹1,999/month Growth</td><td>Depends on combination</td></tr>
+        <tr><td>1L price</td><td>₹80,000</td><td>₹15,000</td><td>₹3,999/month Pro</td><td>Depends on combination</td></tr>
+        <tr><td>Custom plans</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+        <tr><td>Campaigns</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td></tr>
+        <tr><td>Transactional messaging</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="yes">✓</td></tr>
+        <tr><td>Workflow builder</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+        <tr><td>AI automation</td><td class="no">—</td><td class="no">—</td><td>Pro and above</td><td>Pro and above</td></tr>
+        <tr><td>Message credits</td><td>Marketing credits</td><td>Utility credits</td><td>Purchased separately</td><td>Marketing or Utility</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head center" style="margin-left:auto; margin-right:auto;">
+      <div class="eyebrow">Online purchase flow</div>
+      <h2 class="h2 display">How a purchase works</h2>
+    </div>
+    <div class="steps" style="margin-top:28px;">
+      <div class="step"><b>01 · WHATSAPP</b>Select Marketing or Utility — the message category you need.</div>
+      <div class="step"><b>02 · VOLUME</b>Pick a message pack: 10K, 50K, 1L or a custom volume.</div>
+      <div class="step"><b>03 · AUTOMATION</b>Optionally add a monthly Automation plan — Starter, Growth, Pro or Enterprise.</div>
+      <div class="step"><b>04 · CHECKOUT</b>Review the one-time pack, monthly automation and first-month total before paying.</div>
+    </div>
+    <div class="notice" style="margin-top:20px;">💡 Selecting a plan doesn't charge you immediately — you confirm everything on the next screen before any payment is taken.</div>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="wrap" style="max-width:860px;">
+    <div class="section-head center" style="margin-left:auto; margin-right:auto;">
+      <div class="eyebrow">FAQ</div>
+      <h2 class="h2 display">Pricing questions</h2>
+    </div>
+    <div class="faq-list" style="margin-top:10px;">
+      <div class="faq-item"><button class="faq-q">Are Marketing and Utility separate pricing plans? <span class="plus">+</span></button><div class="faq-a"><p>Yes. WhatsApp Marketing and WhatsApp Utility message credits are priced separately — Utility packs cost significantly less per message.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Is WhatsApp messaging subscription-based? <span class="plus">+</span></button><div class="faq-a"><p>No — message packs are one-time purchases that you top up when needed. Automation is the only recurring monthly subscription.</p></div></div>
+      <div class="faq-item"><button class="faq-q">What happens when I buy WhatsApp + Automation? <span class="plus">+</span></button><div class="faq-a"><p>You select Marketing or Utility, choose a message volume, then choose an Automation plan. Your first-month total is the message pack plus one month of automation.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Does the message pack renew automatically? <span class="plus">+</span></button><div class="faq-a"><p>No. Message credits are purchased when required. Only the Automation subscription renews monthly.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Can I combine Utility or Marketing with Automation? <span class="plus">+</span></button><div class="faq-a"><p>Yes — the combined section lets you pair either message category with any Automation plan.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Can I upgrade my Automation plan later? <span class="plus">+</span></button><div class="faq-a"><p>Yes. You can move between Starter, Growth, Pro and Enterprise at any time as your workflow requirements change.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Are taxes and Meta charges included? <span class="plus">+</span></button><div class="faq-a"><p>The prices shown are Multiflow base pricing. Applicable GST and Meta/WhatsApp conversation charges are shown separately during checkout.</p></div></div>
+      <div class="faq-item"><button class="faq-q">Do I have to pay to create an account? <span class="plus">+</span></button><div class="faq-a"><p>No. Creating a Multiflow account is free — you only pay when you buy message credits or start an Automation subscription.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section--tight">
+  <div class="wrap">
+    <div class="cta-band">
+      <div><h2 class="h2 display">Need custom pricing?</h2><p>For enterprise volume, reseller requirements, multiple numbers or custom automation.</p></div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="contact.html#demo" class="btn" style="background:#fff; color:var(--violet-deep);">Customize My Plan</a>
+        <a href="https://wa.me/919999999999?text=Hi%20Multiflow%2C%20I%20need%20custom%20pricing" class="btn btn--ghost" style="border-color:rgba(255,255,255,0.5); color:#fff;">Chat on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const BUNDLES = {
+  marketing: [
+    { name:"STARTER", tag:"10K MESSAGES", msg:8600, auto:999, features:["10,000 Marketing messages","Starter automation","5 active workflows","2,000 executions / month","Basic triggers & conditions"] },
+    { name:"GROWTH", tag:"50K MESSAGES", msg:41000, auto:1999, features:["50,000 Marketing messages","Growth automation","20 active workflows","10,000 executions / month","Advanced conditions & webhooks"] },
+    { name:"PRO", tag:"1L MESSAGES", msg:80000, auto:3999, features:["1,00,000 Marketing messages","Pro automation","50 active workflows","50,000 executions / month","AI automation & priority support"] },
+    { name:"ENTERPRISE", tag:"CUSTOM", msg:null, auto:null, features:["Custom Marketing volume","Enterprise automation","Multiple numbers","Custom integrations","Dedicated support"] }
+  ],
+  utility: [
+    { name:"STARTER", tag:"10K MESSAGES", msg:3000, auto:999, features:["10,000 Utility messages","Starter automation","5 active workflows","2,000 executions / month","Basic triggers & conditions"] },
+    { name:"GROWTH", tag:"50K MESSAGES", msg:9000, auto:1999, features:["50,000 Utility messages","Growth automation","20 active workflows","10,000 executions / month","Advanced conditions & webhooks"] },
+    { name:"PRO", tag:"1L MESSAGES", msg:15000, auto:3999, features:["1,00,000 Utility messages","Pro automation","50 active workflows","50,000 executions / month","AI automation & priority support"] },
+    { name:"ENTERPRISE", tag:"CUSTOM", msg:null, auto:null, features:["Custom Utility volume","Enterprise automation","Multiple numbers","Custom integrations","Dedicated support"] }
+  ]
+};
+let bundleMode = "marketing";
+
+function money(n){ return n == null ? "Custom" : "₹" + n.toLocaleString("en-IN"); }
+
+function renderBundles(){
+  const grid = document.getElementById("bundleGrid");
+  const label = bundleMode === "marketing" ? "Marketing" : "Utility";
+  grid.innerHTML = BUNDLES[bundleMode].map(function(p, i){
+    const hasPrice = p.msg !== null && p.auto !== null;
+    const first = hasPrice ? money(p.msg + p.auto) : "Custom";
+    const split = hasPrice
+      ? money(p.msg) + " message pack + " + money(p.auto) + " automation / month"
+      : "Custom message pricing + Enterprise automation";
+    const btnClass = i === 2 ? "btn btn--primary" : "btn btn--ghost";
+    const planParam = encodeURIComponent(label + " " + p.tag + " + " + p.name + " Automation");
+    const cta = hasPrice
+      ? "<a class=\"" + btnClass + "\" href=\"buy-online.html?plan=" + planParam + "\">Choose Bundle</a>"
+      : "<a class=\"btn btn--ghost\" href=\"contact.html#demo\">Talk to Sales</a>";
+    const priceSuffix = hasPrice ? " <small>/ first month</small>" : " <small>pricing</small>";
+    return "<div class=\"price-card" + (i === 2 ? " featured" : "") + "\">"
+      + "<span class=\"badge mono\">" + p.tag + " + " + p.name + "</span>"
+      + "<div class=\"price\">" + first + priceSuffix + "</div>"
+      + "<p style=\"font-size:12.5px;\">" + split + "</p>"
+      + "<ul>" + p.features.map(function(f){ return "<li>" + f + "</li>"; }).join("") + "</ul>"
+      + cta + "</div>";
+  }).join("");
+  updateSummary(BUNDLES[bundleMode][0]);
+}
+function updateSummary(p){
+  document.getElementById("sumMessage").textContent = money(p.msg);
+  document.getElementById("sumAuto").textContent = money(p.auto);
+  document.getElementById("sumTotal").textContent = (p.msg !== null && p.auto !== null) ? money(p.msg + p.auto) : "Custom";
+}
+function setMode(m){
+  bundleMode = m;
+  document.getElementById("marketingMode").classList.toggle("active", m === "marketing");
+  document.getElementById("utilityMode").classList.toggle("active", m === "utility");
+  renderBundles();
+}
+function setWpMode(m){
+  const showMarketing = m === "marketing";
+  document.getElementById("wpMarketingSection").style.display = showMarketing ? "block" : "none";
+  document.getElementById("wpUtilitySection").style.display = showMarketing ? "none" : "block";
+  document.getElementById("wpMarketingMode").classList.toggle("active", showMarketing);
+  document.getElementById("wpUtilityMode").classList.toggle("active", !showMarketing);
+}
+renderBundles();
+</script>
+
+<script>writeMultiflowFooter();</script>
+</body>
+</html>

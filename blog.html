@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resources — Multiflow</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<meta name="description" content="Guides on WhatsApp Business API verification and automation from Multiflow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .article{ margin-bottom:64px; max-width:74ch; }
+  .article h3{ font-size:1.5rem; margin:14px 0 16px; }
+  .article p{ color:var(--text-muted); font-size:15px; line-height:1.7; margin-bottom:14px; }
+  .article ul{ padding-left:22px; list-style:disc; margin-bottom:14px; }
+  .article li{ color:var(--text-muted); font-size:15px; line-height:1.7; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<script src="assets/partials.js"></script>
+
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Resources</div>
+    <div class="eyebrow">Resources</div>
+    <h1 class="h1 display">Guides for getting started</h1>
+    <p class="lede">Practical reading on WhatsApp Business API and automation — the two things Multiflow does today. More guides as we add channels.</p>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+
+    <article class="article reveal" id="green-tick">
+      <div class="badge mono">GUIDE</div>
+      <h3 class="display">Getting your WhatsApp green tick</h3>
+      <p>The "green tick" is Meta's official business verification badge, and it's the single biggest thing that determines whether customers trust a WhatsApp Business number. Here's what actually matters:</p>
+      <ul>
+        <li><b>Your business name must match exactly.</b> The name on your WhatsApp profile needs to match your registered business name or a name you can prove you legally operate under — mismatches are the most common rejection reason.</li>
+        <li><b>Use a business phone number, not a personal one.</b> The number needs to be reachable for verification and not already tied to a personal WhatsApp account.</li>
+        <li><b>Have your business documents ready.</b> Meta may ask for a certificate of incorporation, GST registration, or other proof depending on your business type and country.</li>
+        <li><b>Category matters.</b> Certain business categories (financial services, healthcare, alcohol) face extra scrutiny — expect additional review time.</li>
+      </ul>
+      <p>Verification typically takes a few days once documents are submitted correctly. Multiflow handles the submission and follow-up on your behalf as part of onboarding.</p>
+    </article>
+
+    <article class="article reveal" id="automation-flows">
+      <div class="badge mono">PLAYBOOK</div>
+      <h3 class="display">5 WhatsApp automation flows worth setting up first</h3>
+      <p>Automation is most valuable when it handles the repetitive, predictable parts of a conversation. These five flows cover the majority of what most businesses need on day one:</p>
+      <ul>
+        <li><b>Welcome message.</b> Instant reply the moment someone messages you for the first time, setting expectations for response time and next steps.</li>
+        <li><b>Order/booking confirmation.</b> Automatic confirmation the moment a customer completes an order or books an appointment — no manual follow-up needed.</li>
+        <li><b>Reminder before a deadline.</b> Appointment reminders, payment due dates, or renewal nudges sent automatically ahead of time.</li>
+        <li><b>Post-purchase check-in.</b> A simple "how did it go" message a day or two after delivery/service — cheap to send, valuable for catching issues early.</li>
+        <li><b>Re-engagement for cold leads.</b> A scheduled nudge to contacts who went quiet, without anyone on your team having to remember to follow up.</li>
+      </ul>
+      <p>Each of these can be built in Multiflow's flow builder without writing any code — most take under 10 minutes to set up.</p>
+    </article>
+
+    <article class="article reveal" id="app-vs-api">
+      <div class="badge mono">GUIDE</div>
+      <h3 class="display">WhatsApp Business App vs. WhatsApp Business API — what's the real difference?</h3>
+      <p>These are two genuinely different products, and it's worth knowing which one you actually need:</p>
+      <ul>
+        <li><b>WhatsApp Business App</b> is the free app you download on a phone. It's built for solo operators and small teams — one device, one person (or a small team using a shared phone), manual replies, basic quick-reply templates.</li>
+        <li><b>WhatsApp Business API</b> (what Multiflow provides) is built for scale: multiple team members replying from a shared inbox, automated flows, template messages that need Meta approval, integration with your other tools, and usage-based pricing per conversation rather than a free app.</li>
+      </ul>
+      <p>If you're a single person answering a handful of chats a day, the free app is genuinely fine. Once you have a team, need automation, or want to run broadcast campaigns, the API is the only path forward — that's the gap Multiflow exists to fill.</p>
+    </article>
+
+    <p class="lede" style="margin-top:8px;">Have a topic you'd like us to cover? <a href="contact.html" style="color:var(--violet-deep); text-decoration:underline;">Get in touch</a>.</p>
+  </div>
+</section>
+
+<script>writeMultiflowFooter();</script>
+</body>
+</html>

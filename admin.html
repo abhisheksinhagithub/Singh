@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Multiflow</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="app-sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="mf-mark" viewBox="0 0 39 32" width="29" height="24" fill="none" aria-hidden="true"><path d="M6 16 C14 16 14 7 21 7 L28 7" stroke="#17B8A6" stroke-width="2.8" stroke-linecap="round"/><path d="M6 16 L28 16" stroke="#6C5CE7" stroke-width="2.8" stroke-linecap="round"/><path d="M6 16 C14 16 14 25 21 25 L28 25" stroke="#FF6B4A" stroke-width="2.8" stroke-linecap="round"/><circle cx="33" cy="7" r="2.2" fill="#17B8A6"/><circle cx="33" cy="16" r="2.2" fill="#6C5CE7"/><circle cx="33" cy="25" r="2.2" fill="#FF6B4A"/><circle cx="5.6" cy="16" r="3" fill="#FFFFFF"/></svg>
+      Multiflow <span class="mono" style="font-size:10px; color:#66708A; margin-left:2px;">ADMIN</span>
+    </div>
+    <nav class="app-nav">
+      <a href="#" class="active" data-view="overview"><span class="nav-icon">▦</span> <span class="lbl">Overview</span></a>
+      <a href="#" data-view="verify"><span class="nav-icon">✓</span> <span class="lbl">Verifications</span> <span id="pendingBadge" class="pill warn" style="margin-left:auto;"></span></a>
+      <a href="#" data-view="customers"><span class="nav-icon">◍</span> <span class="lbl">All customers</span></a>
+      <a href="#" data-view="revenue"><span class="nav-icon">◐</span> <span class="lbl">Revenue</span></a>
+      <a href="#" data-view="support"><span class="nav-icon">✉</span> <span class="lbl">Support</span></a>
+      <a href="#" data-view="settings"><span class="nav-icon">⚙</span> <span class="lbl">Platform settings</span></a>
+    </nav>
+    <div class="sidebar-foot">
+      <div id="sidebarAdmin" style="margin-bottom:8px; color:#E7EAF3; font-weight:600;">Admin console</div>
+      <a href="#" id="logoutBtn" style="color:#9AA3B8;">Sign out</a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="mobile-nav-toggle" id="navToggle">☰</button>
+        <h1 id="viewTitle">Overview</h1>
+      </div>
+      <div class="avatar">AD</div>
+    </div>
+
+    <div class="app-content">
+
+      <!-- OVERVIEW -->
+      <section class="view" data-view="overview">
+        <div class="stat-grid" id="adminStats"></div>
+        <div class="panel"><div class="panel-head"><h3>Messages processed — last 7 days</h3></div><canvas id="platformChart" height="220"></canvas></div>
+      </section>
+
+      <!-- VERIFICATIONS -->
+      <section class="view" data-view="verify" style="display:none;">
+        <div class="panel"><div class="panel-head"><h3>Pending business verifications</h3></div><div id="verifyList"></div></div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section class="view" data-view="customers" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>All customer accounts</h3></div>
+          <table>
+            <thead><tr><th>Business</th><th>Industry</th><th>Plan</th><th>WhatsApp number</th><th>Status</th><th>Signed up</th></tr></thead>
+            <tbody id="customersBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REVENUE -->
+      <section class="view" data-view="revenue" style="display:none;">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="top"><span class="icon" style="background:#EAF8F1;color:#17B8A6;">◐</span><span class="delta up">+18%</span></div><div class="val">₹8.4L</div><div class="lbl">MRR</div></div>
+          <div class="stat-card"><div class="top"><span class="icon" style="background:#EFECFD;color:#6C5CE7;">◍</span><span class="delta up">+5</span></div><div class="val">62</div><div class="lbl">Paying customers</div></div>
+          <div class="stat-card"><div class="top"><span class="icon" style="background:#FFF0EC;color:#FF6B4A;">↗</span><span class="delta up">+2.1%</span></div><div class="val">4.6%</div><div class="lbl">Churn (30d)</div></div>
+          <div class="stat-card"><div class="top"><span class="icon" style="background:#EFECFD;color:#4C3FC0;">₹</span><span class="delta up">+9%</span></div><div class="val">₹13,540</div><div class="lbl">Avg. revenue / customer</div></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h3>Plan distribution</h3></div><canvas id="planChart" height="200"></canvas></div>
+      </section>
+
+      <!-- SUPPORT -->
+      <section class="view" data-view="support" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>Support tickets</h3></div>
+          <table>
+            <thead><tr><th>Ticket</th><th>Customer</th><th>Topic</th><th>Priority</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">#1042</td><td>Sharma Fashion Retail</td><td>WhatsApp template rejected</td><td><span class="pill bad">High</span></td><td><span class="pill warn">Open</span></td></tr>
+              <tr><td class="mono">#1041</td><td>Newbiz Coaching Institute</td><td>DLT registration help</td><td><span class="pill neutral">Medium</span></td><td><span class="pill warn">Open</span></td></tr>
+              <tr><td class="mono">#1038</td><td>Kavya Realty</td><td>Billing discrepancy</td><td><span class="pill neutral">Medium</span></td><td><span class="pill good">Resolved</span></td></tr>
+              <tr><td class="mono">#1035</td><td>QuickBite Restaurants</td><td>Automation workflow help</td><td><span class="pill neutral">Low</span></td><td><span class="pill good">Resolved</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PLATFORM SETTINGS -->
+      <section class="view" data-view="settings" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>Wholesale rates (per message)</h3></div>
+          <table>
+            <thead><tr><th>Product</th><th>Provider cost</th><th>Customer rate</th><th>Margin</th></tr></thead>
+            <tbody>
+              <tr><td style="color:#17B8A6;">WhatsApp · Marketing</td><td>₹0.78 / msg (Meta)</td><td>₹0.80–₹0.86 / msg</td><td><span class="pill good">₹0.02–₹0.08</span></td></tr>
+              <tr><td style="color:#17B8A6;">WhatsApp · Utility</td><td>₹0.115 / msg (Meta)</td><td>₹0.15–₹0.30 / msg</td><td><span class="pill good">₹0.04–₹0.19</span></td></tr>
+              <tr><td style="color:#6C5CE7;">Automation subscription</td><td>Infra cost</td><td>₹999–₹3,999 / mo</td><td><span class="pill good">Recurring</span></td></tr>
+              <tr><td style="color:#8F87F0;">SMS / RCS / Voice / Email</td><td>—</td><td>—</td><td><span class="pill warn">Coming soon</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Upstream provider credentials</h3></div>
+          <div class="field"><label>Meta WhatsApp Cloud API token</label><input value="EAAxxxxxxxxxxxxxxxxxx" readonly></div>
+          <div class="field"><label>Meta App ID / Webhook verify token</label><input value="mf_verify_••••••••7c3d" readonly></div>
+          <div class="field"><label>Payment gateway (Razorpay) key</label><input value="rzp_live_••••••••9f12" readonly></div>
+          <div class="field"><label>SMS aggregator key <span class="hint">(coming soon)</span></label><input value="— not connected yet" readonly></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+(() => {
+  const session = requireRole("admin");
+  if (!session) return;
+  document.getElementById("sidebarAdmin").textContent = session.email || "Admin console";
+
+  document.querySelectorAll(".app-nav a").forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.querySelectorAll(".app-nav a").forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+      const v = link.dataset.view;
+      document.querySelectorAll(".view").forEach(sec => sec.style.display = sec.dataset.view === v ? "block" : "none");
+      document.getElementById("viewTitle").textContent = link.querySelector(".lbl").textContent.trim();
+      sidebar.classList.remove("open");
+    });
+  });
+  const sidebar = document.getElementById("sidebar");
+  document.getElementById("navToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.getElementById("logoutBtn").addEventListener("click", (e) => { e.preventDefault(); clearSession(); window.location.href = "login.html"; });
+
+  function render() {
+    const accounts = loadAccounts().filter(a => a.role === "customer");
+    const pending = accounts.filter(a => a.status === "pending_verification");
+
+    document.getElementById("pendingBadge").textContent = pending.length;
+    document.getElementById("pendingBadge").style.display = pending.length ? "inline-flex" : "none";
+
+    document.getElementById("adminStats").innerHTML = `
+      <div class="stat-card"><div class="top"><span class="icon" style="background:#EFECFD;color:#6C5CE7;">◍</span></div><div class="val">${accounts.length}</div><div class="lbl">Total customers</div></div>
+      <div class="stat-card"><div class="top"><span class="icon" style="background:#FFF3E8;color:#B15B00;">!</span></div><div class="val">${pending.length}</div><div class="lbl">Pending verification</div></div>
+      <div class="stat-card"><div class="top"><span class="icon" style="background:#EAF8F1;color:#17B8A6;">✓</span></div><div class="val">${accounts.filter(a=>a.status==='approved').length}</div><div class="lbl">Approved &amp; live</div></div>
+      <div class="stat-card"><div class="top"><span class="icon" style="background:#FFF0EC;color:#FF6B4A;">➤</span></div><div class="val">2.1M</div><div class="lbl">Messages this month</div></div>
+    `;
+
+    const vl = document.getElementById("verifyList");
+    if (!pending.length) {
+      vl.innerHTML = `<div class="empty">No pending verifications — you're all caught up.</div>`;
+    } else {
+      vl.innerHTML = pending.map(a => `
+        <div class="doc-item" style="flex-direction:column; align-items:stretch; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div>
+              <div style="font-weight:700; font-size:14px;">${a.businessName} ${a.accountType === 'reseller' ? '<span class="pill brand" style="margin-left:6px;">Reseller</span>' : ''}</div>
+              <div style="color:var(--text-muted); font-size:12px;">${a.category || "—"} · ${a.businessType || "—"} · Submitted ${a.createdAt}</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn--ghost btn--sm" onclick="setStatus('${a.id}','rejected')">Reject</button>
+              <button class="btn btn--violet btn--sm" onclick="setStatus('${a.id}','approved')">Approve</button>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; font-size:12.5px; color:var(--text-muted);">
+            <div><b style="color:var(--text-dark);">WhatsApp:</b> ${a.waNumber || "—"}</div>
+            <div><b style="color:var(--text-dark);">GSTIN:</b> ${a.gstin || "—"}</div>
+            <div><b style="color:var(--text-dark);">PAN:</b> ${a.pan || "—"}</div>
+            <div><b style="color:var(--text-dark);">Plan:</b> ${a.plan}</div>
+            <div><b style="color:var(--text-dark);">Volume:</b> ${a.volume || "—"}</div>
+            <div><b style="color:var(--text-dark);">Contact:</b> ${a.accountName || "—"} (${a.email || "—"})</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("customersBody").innerHTML = accounts.map(a => `
+      <tr>
+        <td><b>${a.businessName}</b> ${a.accountType === 'reseller' ? '<span class="pill brand" style="margin-left:4px;">Reseller</span>' : ''}</td>
+        <td>${a.category || "—"}</td>
+        <td><span class="pill brand">${a.plan || "—"}</span></td>
+        <td>${a.waNumber || "—"}</td>
+        <td><span class="pill ${statusPillClass(a.status)}">${statusLabel(a.status)}</span></td>
+        <td>${a.createdAt}</td>
+      </tr>
+    `).join("");
+  }
+
+  window.setStatus = function (id, status) {
+    const accounts = loadAccounts();
+    const idx = accounts.findIndex(a => a.id === id);
+    if (idx > -1) { accounts[idx].status = status; saveAccounts(accounts); render(); }
+  };
+
+  render();
+
+  new Chart(document.getElementById("platformChart"), {
+    type: "line",
+    data: { labels:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], datasets:[
+      { label:"WhatsApp · Marketing", data:[62000,64500,67000,65800,71200,69000,72500], borderColor:"#17B8A6", tension:.4, pointRadius:0 },
+      { label:"WhatsApp · Utility", data:[21000,22500,20200,23800,25000,24200,26500], borderColor:"#6C5CE7", tension:.4, pointRadius:0 },
+    ]},
+    options: { plugins:{legend:{position:"bottom", labels:{boxWidth:8,font:{size:11}}}} }
+  });
+  new Chart(document.getElementById("planChart"), {
+    type: "bar",
+    data: { labels:["Silver","Gold","Platinum","Diamond"], datasets:[{ data:[21,24,12,5], backgroundColor:"#6C5CE7", borderRadius:6 }] },
+    options: { plugins:{legend:{display:false}}, indexAxis:"y" }
+  });
+
+})();
+</script>
+</body>
+</html>

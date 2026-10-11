@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Multiflow</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="app-sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="mf-mark" viewBox="0 0 39 32" width="29" height="24" fill="none" aria-hidden="true"><path d="M6 16 C14 16 14 7 21 7 L28 7" stroke="#17B8A6" stroke-width="2.8" stroke-linecap="round"/><path d="M6 16 L28 16" stroke="#6C5CE7" stroke-width="2.8" stroke-linecap="round"/><path d="M6 16 C14 16 14 25 21 25 L28 25" stroke="#FF6B4A" stroke-width="2.8" stroke-linecap="round"/><circle cx="33" cy="7" r="2.2" fill="#17B8A6"/><circle cx="33" cy="16" r="2.2" fill="#6C5CE7"/><circle cx="33" cy="25" r="2.2" fill="#FF6B4A"/><circle cx="5.6" cy="16" r="3" fill="#FFFFFF"/></svg>
+      Multiflow
+    </div>
+    <nav class="app-nav" id="appNav"></nav>
+    <div class="sidebar-foot">
+      <div id="sidebarBusiness" style="margin-bottom:8px; color:#E7EAF3; font-weight:600;">Loading…</div>
+      <a href="#" id="logoutBtn" style="color:#9AA3B8;">Sign out</a>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <div class="app-topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="mobile-nav-toggle" id="navToggle">☰</button>
+        <h1 id="viewTitle">Dashboard</h1>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <input class="topbar-search" id="globalSearch" placeholder="Search contacts, campaigns, templates…">
+        <button class="topbar-btn" id="bellBtn" title="Notifications">🔔</button>
+        <div class="avatar" id="avatarInit">—</div>
+      </div>
+    </div>
+
+    <div class="app-content">
+
+      <div id="verifyBanner" style="display:none; background:#FFF3E8; border:1px solid #F5D8B3; color:#B15B00; padding:12px 16px; border-radius:10px; font-size:13.5px; margin-bottom:20px;">
+        Your business verification is in progress. Messaging is limited until your WhatsApp number and documents are approved — typically within 1–2 business days.
+      </div>
+
+      <div id="genViews"></div>
+
+      <!-- INBOX (static: live chat) -->
+      <section class="view" data-view="inbox" style="display:none;">
+        <div class="inbox-shell">
+          <div class="inbox-list" id="inboxList"></div>
+          <div class="inbox-thread" id="inboxThread"></div>
+        </div>
+      </section>
+
+      <!-- CAMPAIGNS (static: list + wizard + report) -->
+      <section class="view" data-view="campaigns" style="display:none;">
+        <div class="panel" id="campaignListPanel">
+          <div class="panel-head"><h3>WhatsApp campaigns</h3><button class="btn btn--primary btn--sm" id="newCampaignBtn">+ New campaign</button></div>
+          <div class="filter-bar"><input placeholder="Search campaigns…" id="campaignSearch"><select id="campaignFilter"><option>All statuses</option><option>Running</option><option>Scheduled</option><option>Completed</option><option>Failed</option></select></div>
+          <table>
+            <thead><tr><th>Campaign</th><th>Category</th><th>Audience</th><th>Delivered</th><th>Read</th><th>Status</th><th></th></tr></thead>
+            <tbody id="campaignsBody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel wizard-overlay" id="campaignWizard">
+          <div class="panel-head"><h3>New WhatsApp campaign</h3><button class="btn btn--ghost btn--sm" id="cancelWizard">Cancel</button></div>
+          <p class="sub" style="margin:-8px 0 18px; font-size:12.5px;">Step <span id="cStepNum">1</span> of 5</p>
+          <div class="wizard-steps">
+            <span class="active" data-cs="1"></span><span data-cs="2"></span><span data-cs="3"></span><span data-cs="4"></span><span data-cs="5"></span>
+          </div>
+          <div class="wizard-panel active" data-cpanel="1">
+            <div class="field"><label>Campaign name</label><input id="cName" placeholder="e.g. Diwali Offer Blast"></div>
+            <div class="field"><label>Message category</label>
+              <div class="chip-select" id="cCategoryChips">
+                <span class="chip-opt selected" data-cat="Marketing">Marketing</span>
+                <span class="chip-opt" data-cat="Utility">Utility</span>
+              </div>
+              <p class="sub" style="font-size:11.5px; margin-top:8px;">Marketing uses your Marketing message credits; Utility uses Utility credits. Rates differ — see Billing.</p>
+            </div>
+          </div>
+          <div class="wizard-panel" data-cpanel="2">
+            <div class="field"><label>Choose your audience</label></div>
+            <div class="audience-grid" id="cAudienceGrid"></div>
+          </div>
+          <div class="wizard-panel" data-cpanel="3">
+            <div class="field"><label>Choose an approved template</label></div>
+            <div class="template-pick-grid" id="cTemplateGrid"></div>
+          </div>
+          <div class="wizard-panel" data-cpanel="4">
+            <div class="field"><label>Delivery</label>
+              <div class="chip-select" style="margin-bottom:14px;">
+                <span class="chip-opt selected" id="sendNowChip">Send now</span>
+                <span class="chip-opt" id="scheduleChip">Schedule for later</span>
+              </div>
+            </div>
+            <div class="field" id="scheduleField" style="display:none;"><label>Send date &amp; time</label><input type="datetime-local" id="cSchedule"></div>
+          </div>
+          <div class="wizard-panel" data-cpanel="5">
+            <div class="field"><label>Review</label></div>
+            <div id="cReview"></div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:22px;">
+            <button type="button" id="cBack" class="btn btn--ghost" style="display:none;">Back</button>
+            <button type="button" id="cNext" class="btn btn--violet btn--block">Continue</button>
+            <button type="button" id="cLaunch" class="btn btn--primary btn--block" style="display:none;">🚀 Launch campaign</button>
+          </div>
+        </div>
+
+        <div class="panel wizard-overlay" id="campaignReport">
+          <div class="panel-head"><h3 id="reportTitle">Campaign report</h3><button class="btn btn--ghost btn--sm" id="closeReport">Back to campaigns</button></div>
+          <div class="funnel" id="reportFunnel"></div>
+          <canvas id="reportChart" height="180"></canvas>
+        </div>
+      </section>
+
+      <!-- CLIENTS (reseller only) -->
+      <section class="view" data-view="clients" style="display:none;">
+        <div class="panel" id="clientsListPanel">
+          <div class="panel-head">
+            <h3>Your clients</h3>
+            <button class="btn btn--primary btn--sm" id="addClientBtn">+ Add client</button>
+          </div>
+          <p class="sub" style="font-size:12.5px; margin:-8px 0 16px;">Sub-accounts you manage under your Multiflow reseller account.</p>
+          <table>
+            <thead><tr><th>Client</th><th>Contact</th><th>Plan</th><th>Status</th><th></th></tr></thead>
+            <tbody id="clientsBody"></tbody>
+          </table>
+        </div>
+        <div class="panel wizard-overlay" id="addClientPanel">
+          <div class="panel-head"><h3>Add a new client</h3><button class="btn btn--ghost btn--sm" id="cancelAddClient">Cancel</button></div>
+          <div class="field"><label>Client / business name</label><input id="ncName" placeholder="e.g. Blue Orchid Interiors"></div>
+          <div class="field-row">
+            <div class="field"><label>Contact email</label><input id="ncEmail" type="email" placeholder="contact@client.com"></div>
+            <div class="field"><label>Contact phone</label><input id="ncPhone" placeholder="+91 XXXXX XXXXX"></div>
+          </div>
+          <div class="field"><label>Plan</label>
+            <select id="ncPlan"><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="diamond">Diamond</option></select>
+          </div>
+          <button class="btn btn--primary btn--block" id="saveClientBtn">Add client</button>
+        </div>
+      </section>
+
+      <!-- SETTINGS (static: real account data) -->
+      <section class="view" data-view="settings" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h3>Account information</h3></div>
+          <div class="field-row">
+            <div class="field"><label>Full name</label><input id="setName"></div>
+            <div class="field"><label>Email</label><input id="setEmail" readonly></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Mobile</label><input id="setPhone"></div>
+            <div class="field"><label>Timezone</label><select><option>Asia/Kolkata (IST)</option><option>Asia/Dubai (GST)</option></select></div>
+          </div>
+          <button class="btn btn--primary btn--sm" id="saveAccountBtn">Save changes</button>
+        </div>
+        <div class="panel"><div class="panel-head"><h3>Business profile</h3></div><div id="businessProfile" style="font-size:13.5px; line-height:2;"></div></div>
+        <div class="panel">
+          <div class="panel-head"><h3>WhatsApp connection</h3></div>
+          <div id="waConnection" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Security &amp; preferences</h3></div>
+          <div class="list-row"><div><b>Two-factor authentication</b><span class="sub-line">Protect your account with an OTP at sign-in.</span></div><button class="btn btn--ghost btn--sm" onclick="toast('2FA preference updated')">Enable</button></div>
+          <div class="list-row"><div><b>Email notifications</b><span class="sub-line">Campaign completions, billing alerts, template reviews.</span></div><button class="btn btn--ghost btn--sm" onclick="toast('Notification preference updated')">Enabled</button></div>
+          <div class="list-row"><div><b>Low-credit alerts</b><span class="sub-line">Warn when Marketing or Utility credits fall below 10%.</span></div><button class="btn btn--ghost btn--sm" onclick="toast('Low-credit alert threshold saved')">Configure</button></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>API &amp; webhooks</h3></div>
+          <div class="field"><label>Live API key</label><input value="mf_live_••••••••••••8f2a" readonly></div>
+          <div class="field"><label>Webhook URL</label><input value="https://yourapp.com/webhooks/multiflow" readonly></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Generic modal -->
+<div class="modal-overlay" id="appModal">
+  <div class="modal-box" style="text-align:left; width:min(520px,100%);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <h2 style="font-size:1.15rem; margin:0;" id="modalTitle">—</h2>
+      <button class="btn btn--ghost btn--sm" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast-note" id="toastNote"></div>
+
+<script src="assets/app.js"></script>
+<script>
+(() => {
+  // ---------- Auth ----------
+  const session = requireRole("customer");
+  if (!session) return;
+  const accounts = loadAccounts();
+  const me = accounts.find(a => a.id === session.id);
+  if (!me) {
+    document.querySelector(".app-content").innerHTML = "<div class='panel'>No business record found for this account yet. Try signing up again.</div>";
+    return;
+  }
+  const pendingAccount = me.status === "pending_verification";
+  document.getElementById("sidebarBusiness").textContent = me.businessName || me.accountName;
+  document.getElementById("avatarInit").textContent = (me.accountName || "U").split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+  if (pendingAccount) document.getElementById("verifyBanner").style.display = "block";
+
+  // ---------- Toast / modal ----------
+  window.toast = function (m) {
+    const t = document.getElementById("toastNote");
+    t.textContent = m; t.style.display = "block";
+    clearTimeout(window.__tt); window.__tt = setTimeout(() => t.style.display = "none", 2400);
+  };
+  window.openModal = function (title, bodyHTML) {
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalBody").innerHTML = bodyHTML;
+    document.getElementById("appModal").classList.add("open");
+  };
+  window.closeModal = function () { document.getElementById("appModal").classList.remove("open"); };
+
+  // ---------- Navigation model ----------
+  const NAV = [
+    { group: null, items: [["overview","▦","Dashboard"]] },
+    { group: "WhatsApp", items: [
+      ["wa","◔","Overview"],["templates","▤","Templates"],["campaigns","➤","Campaigns"],
+      ["contacts","◍","Contacts"],["inbox","✉","Inbox"],["catalog","▣","Catalog"]] },
+    { group: "Automation", items: [
+      ["auto","⚙","Overview"],["workflows","⇄","Workflows"],["ai","✦","AI Assistant"],["execlogs","≋","Execution Logs"]] },
+    { group: "Analytics", items: [
+      ["analytics","◔","Overview"],["creports","▥","Campaign Reports"],["mreports","▤","Message Reports"],["areports","◍","Agent Reports"]] },
+    { group: "Team", items: [["members","◍","Members"],["roles","✓","Roles & Permissions"]] },
+    { group: "Developers", items: [["api","⌘","API Keys"],["webhooks","↯","Webhooks"],["integrations","⧉","Integrations"]] },
+    { group: "Billing", items: [["credits","◐","Credits"],["recharge","＋","Recharge"],["transactions","₹","Transactions"],["invoices","▤","Invoices"]] },
+    { group: "Workspace", items: [["notifications","◎","Notifications"],["activity","≋","Activity Logs"],["support","❓","Help & Support"],["settings","⚙","Settings"]] },
+  ];
+  if (me.accountType === "reseller") NAV.splice(4, 0, { group: "Reseller", items: [["clients","◫","Clients"]] });
+
+  const titles = {};
+  document.getElementById("appNav").innerHTML = NAV.map(g =>
+    (g.group ? `<div class="nav-group">${g.group}</div>` : "") +
+    g.items.map(([id, icon, label]) => {
+      titles[id] = (g.group && label === "Overview") ? g.group + " Overview" : label;
+      const badge = id === "inbox" ? ' <span class="pill bad" style="margin-left:auto;">2</span>' : "";
+      return `<a href="#" data-view="${id}"><span class="nav-icon">${icon}</span> <span class="lbl">${label}</span>${badge}</a>`;
+    }).join("")
+  ).join("");
+
+  const sidebar = document.getElementById("sidebar");
+  window.go = function (id) {
+    document.querySelectorAll(".app-nav a").forEach(l => l.classList.toggle("active", l.dataset.view === id));
+    document.querySelectorAll(".view").forEach(sec => sec.style.display = sec.dataset.view === id ? "block" : "none");
+    document.getElementById("viewTitle").textContent = titles[id] || "Dashboard";
+    sidebar.classList.remove("open");
+    window.scrollTo(0, 0);
+    if (id === "analytics" || id === "overview") setTimeout(drawCharts, 30);
+  };
+  document.getElementById("appNav").addEventListener("click", (e) => {
+    const link = e.target.closest("a"); if (!link) return;
+    e.preventDefault(); go(link.dataset.view);
+  });
+  document.getElementById("navToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.getElementById("bellBtn").addEventListener("click", () => go("notifications"));
+  document.getElementById("logoutBtn").addEventListener("click", (e) => { e.preventDefault(); clearSession(); window.location.href = "login.html"; });
+
+  // ---------- Demo workspace data (WhatsApp-only launch) ----------
+  let templates = [
+    { name:"summer_sale_v3", cat:"Marketing", lang:"English", status:"Approved", quality:"Green", usage:"4,820" },
+    { name:"new_arrivals_v2", cat:"Marketing", lang:"English", status:"Approved", quality:"Green", usage:"3,200" },
+    { name:"order_followup_v2", cat:"Utility", lang:"English", status:"Approved", quality:"Green", usage:"2,840" },
+    { name:"payment_reminder_v1", cat:"Utility", lang:"English", status:"Approved", quality:"Green", usage:"1,960" },
+    { name:"festive_preview_v1", cat:"Marketing", lang:"Hindi", status:"Pending", quality:"—", usage:"0" },
+    { name:"vip_update_v2", cat:"Utility", lang:"English", status:"Rejected", quality:"—", usage:"0" },
+  ];
+  let campaigns = [
+    { name:"Summer Sale Broadcast", cat:"Marketing", sent:4950, delivered:97.4, read:81.1, replied:10.1, status:"Completed" },
+    { name:"New Arrivals", cat:"Marketing", sent:3420, delivered:93.6, read:76.3, replied:9.3, status:"Completed" },
+    { name:"Order Follow-up", cat:"Utility", sent:2860, delivered:95.8, read:76.5, replied:11.1, status:"Completed" },
+    { name:"Festive Preview", cat:"Marketing", sent:1880, delivered:91.5, read:60.5, replied:8.6, status:"Failed" },
+  ];
+  let contacts = [
+    ["Priya Mehta","+91 98765 43210","VIP","Yes","2 min ago"],
+    ["Rahul Verma","+91 98111 22334","Lead","Yes","8 min ago"],
+    ["Neha Singh","+91 98222 33445","Customer","Yes","18 min ago"],
+    ["Karan Patel","+91 98333 44556","New Lead","Yes","25 min ago"],
+    ["Simran Kaur","+91 91234 77889","Customer","Yes","2 days ago"],
+  ];
+  const catalog = [
+    ["Classic Denim Jacket","SF-DJ-01","₹2,499","Available","Jackets"],
+    ["Cotton Overshirt","SF-OS-12","₹1,799","Available","Shirts"],
+    ["Linen Shirt","SF-LS-08","₹1,499","Low Stock","Shirts"],
+    ["Everyday Tee","SF-ET-02","₹799","Available","T-Shirts"],
+  ];
+  let workflows = [
+    ["New Lead Qualification","Incoming message","Active","2,148","98.1%","2 min ago"],
+    ["Order Confirmation","Order event","Active","1,684","97.4%","7 min ago"],
+    ["24h Lead Follow-up","Tag added","Active","1,260","94.8%","12 min ago"],
+    ["Campaign Reply Router","Customer reply","Paused","804","89.6%","18 min ago"],
+  ];
+  const execlogs = [
+    ["EX-98421","New Lead Qualification","Priya Mehta","Incoming message","5","Success"],
+    ["EX-98420","Order Confirmation","Rahul Verma","Order event","4","Success"],
+    ["EX-98419","24h Lead Follow-up","Amit Shah","Tag added","4","Running"],
+    ["EX-98418","Campaign Reply Router","Neha Singh","Customer reply","3","Failed"],
+  ];
+  const mreports = [
+    ["MSG-7A9218","Priya Mehta","Summer Sale","Template","Read"],
+    ["MSG-7A9217","Rahul Verma","Order Follow-up","Template","Read"],
+    ["MSG-7A9216","Neha Singh","Festive Preview","Template","Failed"],
+    ["MSG-7A9215","Karan Patel","New Arrivals","Media","Delivered"],
+  ];
+  const areports = [
+    ["Priya Mehta","Sales","Online","284","267","94.0%"],
+    ["Rahul Verma","Support","Online","246","226","92.0%"],
+    ["Neha Singh","Customer Success","Away","221","197","89.1%"],
+  ];
+  let members = [
+    [(me.accountName || "Owner"),"Operations","Owner","Online","312","94.9%"],
+    ["Priya Mehta","Sales","Admin","Online","284","94.0%"],
+    ["Rahul Verma","Support","Agent","Online","246","92.0%"],
+  ];
+  const apikeys = [
+    ["Production App","Production","12 Aug 2026","2 min ago","Active"],
+    ["CRM Sync","Production","28 Jul 2026","8 min ago","Active"],
+    ["Testing Key","Test","19 Jun 2026","8 Sep 2026","Expires soon"],
+  ];
+  const webhooks = [
+    ["Production Events","app.example.com/webhooks/multiflow","12","Active","99.9%"],
+    ["CRM Sync","crm.example.com/webhook","4","Active","99.4%"],
+    ["Analytics Pipeline","analytics.example.com/events","6","Paused","97.8%"],
+  ];
+  const integrations = [
+    ["Zoho CRM","CRM","Connected","2 min ago","Healthy"],
+    ["Google Sheets","Data","Connected","5 min ago","Healthy"],
+    ["Zapier","Automation","Connected","8 min ago","Healthy"],
+    ["Shopify","E-commerce","Available","—","Ready"],
+  ];
+  const transactions = [
+    ["TXN-98173","14 Sep","Gold Marketing Pack","Recharge","+50,000","₹41,000"],
+    ["TXN-97422","02 Sep","Gold Utility Pack","Recharge","+50,000","₹9,000"],
+    ["TXN-97104","31 Aug","Campaign usage","Usage","−18,420","—"],
+    ["TXN-96781","27 Aug","Credit refund","Refund","+1,500","₹270"],
+  ];
+  const invoices = [
+    ["INV-2026-0024","14 Sep","₹34,745.76","₹6,254.24","₹41,000","Paid"],
+    ["INV-2026-0023","02 Sep","₹7,627.12","₹1,372.88","₹9,000","Paid"],
+    ["INV-2026-0022","27 Aug","₹3,389.19","₹610.81","₹3,999","Paid"],
+  ];
+  const activity = [
+    ["LOG-98241","2 min",(me.accountName || "You"),"WhatsApp","Profile updated","Success"],
+    ["LOG-98240","4 min","Priya Mehta","Campaigns","Campaign completed","Success"],
+    ["LOG-98239","7 min","System","Automation","Execution failed","Failed"],
+    ["LOG-98238","10 min","Rahul Verma","Team","Member invited","Success"],
+  ];
+  let tickets = [
+    ["TKT-10482","Template rejected","WhatsApp / Templates","High","Open","12 min ago"],
+    ["TKT-10476","Webhook retry issue","Developers","Normal","Pending","2 hrs ago"],
+    ["TKT-10461","Recharge confirmation","Billing","Normal","Resolved","Yesterday"],
+  ];
+
+  // ---------- View builders ----------
+  const pillMap = { Approved:"good", Active:"good", Connected:"good", Healthy:"good", Success:"good", Paid:"good", Completed:"good", Online:"good", Available:"good", Read:"good", Delivered:"good", Yes:"good", Green:"good", Resolved:"good", Owner:"brand", Admin:"brand", Running:"brand", Pending:"warn", Paused:"warn", Away:"warn", Scheduled:"warn", "Expires soon":"warn", "Low Stock":"warn", Open:"warn", High:"bad", Failed:"bad", Rejected:"bad" };
+  const pf = s => `<span class="pill ${pillMap[s] || "neutral"}">${s}</span>`;
+  const stat = (label, val, note, tone) => `<div class="stat-card"><div class="top"><span class="icon" style="background:${tone==="t"?"#EAF8F1":"#EFECFD"}; color:${tone==="t"?"#17B8A6":"#6C5CE7"};">◔</span></div><div class="val">${val}</div><div class="lbl">${label}${note?` · <span style="color:var(--teal);">${note}</span>`:""}</div></div>`;
+  const panel = (title, body, action) => `<div class="panel"><div class="panel-head"><h3>${title}</h3>${action || ""}</div>${body}</div>`;
+  const tbl = (cols, rowsHTML) => `<div style="overflow:auto;"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rowsHTML}</tbody></table></div>`;
+  const listRow = (title, sub, right) => `<div class="list-row"><div><b>${title}</b><span class="sub-line">${sub}</span></div>${right}</div>`;
+  const view = (id, html) => `<section class="view" data-view="${id}" style="display:none;">${html}</section>`;
+  const bars = arr => `<div class="mini-bars">${arr.map(h=>`<div class="bar" style="height:${h}%"></div>`).join("")}</div>`;
+
+  const V = [];
+
+  // Dashboard
+  V.push(view("overview", `
+    <div class="stat-grid">
+      ${stat("Messages sent (30d)","12,480","+12.4%")}
+      ${stat("Delivered","11,932","95.6%","t")}
+      ${stat("Open conversations","486","+8.2%")}
+      ${stat("Credits — Mkt / Utl","31,580 / 14,240","","t")}
+    </div>
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px;" class="two-col-stack">
+      ${panel("Delivery rate — last 7 days", `<canvas id="deliveryChart" height="210"></canvas>`)}
+      ${panel("Recent activity", activity.map(a=>listRow(a[4], `${a[2]} · ${a[1]} ago`, pf(a[5]))).join(""))}
+    </div>
+    ${panel("Getting started", ["Business profile completed","WhatsApp number verified","First template approved","Test message sent","First campaign launched"].map((x,i)=>listRow(x, i<4?"Done":"You are one step away", pf(i<4?"Completed":"Next"))).join(""))}
+  `));
+
+  // WhatsApp overview
+  V.push(view("wa", `
+    <div class="stat-grid">
+      ${stat("Connection", pendingAccount ? "Pending" : "Connected","Business API")}
+      ${stat("Number", me.waNumber || "—", pendingAccount ? "" : "Verified","t")}
+      ${stat("Quality rating","Green","Healthy","t")}
+      ${stat("Messaging limit","100K / day","Current tier")}
+    </div>
+    ${panel("Display profile", `
+      <div class="list-row"><div><b>${me.displayName || me.businessName || "—"}</b><span class="sub-line">WhatsApp display name shown to customers</span></div>${pf(pendingAccount ? "Pending" : "Approved")}</div>
+      <div class="list-row"><div><b>${me.category || "Business"}</b><span class="sub-line">Vertical / category</span></div><button class="btn btn--ghost btn--sm" onclick="toast('Edit profile — will sync to Meta on the live backend')">Edit</button></div>
+    `)}
+    ${panel("Health checklist", ["Webhook receiving message statuses","Template quality above threshold","No messaging-limit violations","Two-step verification set on number"].map(x=>listRow(x,"Checked just now",pf("Active"))).join(""))}
+  `));
+
+  // Templates
+  V.push(view("templates",
+    panel("Message templates", `<div class="filter-bar"><input placeholder="Search templates…" oninput="filterTable(this,'templatesBody')"><select onchange="toast('Filter applied')"><option>All categories</option><option>Marketing</option><option>Utility</option></select></div><div style="overflow:auto;"><table><thead><tr><th>Name</th><th>Category</th><th>Language</th><th>Status</th><th>Quality</th><th>Times used</th></tr></thead><tbody id="templatesBody"></tbody></table></div>`,
+      `<button class="btn btn--primary btn--sm" onclick="newTemplateModal()">+ New template</button>`)
+  ));
+
+  // Contacts
+  V.push(view("contacts",
+    panel("Contacts", `<div class="filter-bar"><input placeholder="Search contacts…" oninput="filterTable(this,'contactsBody')"><select onchange="toast('Segment applied')"><option>All segments</option><option>VIP</option><option>Customer</option><option>Lead</option></select><button class="btn btn--ghost btn--sm" onclick="toast('CSV import — connects to backend on go-live')">Import CSV</button></div><div style="overflow:auto;"><table><thead><tr><th>Name</th><th>WhatsApp number</th><th>Tag</th><th>Opt-in</th><th>Last interaction</th></tr></thead><tbody id="contactsBody"></tbody></table></div>`,
+      `<button class="btn btn--primary btn--sm" onclick="addContactModal()">+ Add contact</button>`)
+  ));
+
+  // Catalog
+  V.push(view("catalog",
+    panel("Product catalog", tbl(["Product","SKU","Price","Availability","Category"], catalog.map(r=>`<tr><td><b>${r[0]}</b></td><td class="mono">${r[1]}</td><td>${r[2]}</td><td>${pf(r[3])}</td><td>${r[4]}</td></tr>`).join("")),
+      `<button class="btn btn--primary btn--sm" onclick="toast('Catalog sync with Meta Commerce Manager — available on the live backend')">Sync catalog</button>`)
+  ));
+
+  // Automation
+  V.push(view("auto", `
+    <div class="stat-grid">
+      ${stat("Automations","38","28 active")}
+      ${stat("Executions","6,315","This period","t")}
+      ${stat("Success rate","95.5%","6,031 successful","t")}
+      ${stat("Failed","284","Needs review")}
+    </div>
+    ${panel("Automation health", workflows.map(w=>listRow(w[0], `${w[3]} executions · ${w[4]} success`, pf(w[2]))).join(""))}
+    ${panel("Executions — last 7 days", bars([45,62,54,78,70,88,94]))}
+  `));
+
+  V.push(view("workflows", `
+    ${panel("Visual workflow builder", `<div class="flow-nodes">
+      <div class="node"><b>Trigger</b><span>Incoming message</span></div><b>→</b>
+      <div class="node"><b>Condition</b><span>Message contains "price"</span></div><b>→</b>
+      <div class="node"><b>Action</b><span>Send template</span></div><b>→</b>
+      <div class="node"><b>AI step</b><span>Answer question</span></div><b>→</b>
+      <div class="node"><b>Handover</b><span>Assign to agent</span></div>
+    </div><p class="sub" style="font-size:12px; margin-top:12px;">Drag-and-drop builder — full canvas editor ships with the live backend.</p>`)}
+    ${panel("Workflows", `<div style="overflow:auto;"><table><thead><tr><th>Automation</th><th>Trigger</th><th>Status</th><th>Executions</th><th>Success</th><th>Last run</th><th></th></tr></thead><tbody id="workflowsBody"></tbody></table></div>`,
+      `<button class="btn btn--primary btn--sm" onclick="newWorkflowModal()">+ New workflow</button>`)}
+  `));
+
+  V.push(view("ai", `
+    <div class="stat-grid">
+      ${stat("AI conversations","1,842","This month")}
+      ${stat("Resolved by AI","82.3%","1,516 chats","t")}
+      ${stat("Handover rate","17.7%","326 handovers")}
+      ${stat("Avg response","2.1s","","t")}
+    </div>
+    ${panel("AI assistant", `
+      <div class="field-row">
+        <div class="field"><label>Assistant name</label><input value="Multiflow Assistant" id="aiName"></div>
+        <div class="field"><label>Tone</label><select><option>Professional &amp; friendly</option><option>Concise</option><option>Playful</option></select></div>
+      </div>
+      <div class="field"><label>Instructions</label><textarea rows="3" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:9px; font:inherit;">Answer using approved business knowledge. Be helpful and concise. Escalate to a human agent when confidence is low.</textarea></div>
+      <button class="btn btn--primary btn--sm" onclick="toast('AI settings saved')">Save AI settings</button>`)}
+    ${panel("Knowledge sources", ["Business information","FAQs (24 answers)","Product catalog"].map(x=>listRow(x,"Synced just now",pf("Connected"))).join(""))}
+  `));
+
+  V.push(view("execlogs",
+    panel("Execution logs", tbl(["Execution","Automation","Contact","Trigger","Steps","Status"], execlogs.map(r=>`<tr><td class="mono">${r[0]}</td><td><b>${r[1]}</b></td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${pf(r[5])}</td></tr>`).join(""))
+    )));
+
+  // Analytics
+  V.push(view("analytics", `
+    <div class="stat-grid">
+      ${stat("Messages sent","12,480","+12.4%")}
+      ${stat("Delivered","11,932","95.6%","t")}
+      ${stat("Read","9,847","78.9%","t")}
+      ${stat("Failed","548","4.4%")}
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;" class="two-col-stack">
+      ${panel("Volume — Marketing vs Utility (30d)", `<canvas id="volumeChart" height="210"></canvas>`)}
+      ${panel("Delivery rate trend", `<canvas id="deliveryChart2" height="210"></canvas>`)}
+    </div>
+  `));
+
+  V.push(view("creports", panel("Campaign reports", `<div style="overflow:auto;"><table><thead><tr><th>Campaign</th><th>Sent</th><th>Delivered</th><th>Read</th><th>Replies</th><th>Delivery rate</th></tr></thead><tbody id="creportsBody"></tbody></table></div>`)));
+  V.push(view("mreports", panel("Message reports", tbl(["Message ID","Contact","Campaign","Type","Status"], mreports.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${pf(r[4])}</td></tr>`).join("")))));
+  V.push(view("areports", panel("Agent reports", tbl(["Agent","Team","Status","Conversations","Resolved","Resolution rate"], areports.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${pf(r[2])}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join("")))));
+
+  // Team
+  V.push(view("members",
+    panel("Team members", `<div style="overflow:auto;"><table><thead><tr><th>Member</th><th>Team</th><th>Role</th><th>Status</th><th>Conversations</th><th>Resolution rate</th></tr></thead><tbody id="membersBody"></tbody></table></div>`,
+      `<button class="btn btn--primary btn--sm" onclick="inviteModal()">+ Invite member</button>`)));
+  V.push(view("roles",
+    panel("Permission matrix", tbl(["Role","Members","View","Create","Edit","Delete","Export"],
+      [["Owner","1","✓","✓","✓","✓","✓"],["Admin","1","✓","✓","✓","✓","✓"],["Manager","0","✓","✓","✓","Limited","✓"],["Agent","1","✓","Limited","Limited","—","—"],["Analyst","0","✓","—","—","—","✓"]]
+      .map(r=>`<tr><td><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")))));
+
+  // Developers
+  V.push(view("api",
+    panel("API keys", tbl(["Key","Environment","Created","Last used","Status"], apikeys.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${pf(r[4])}</td></tr>`).join("")),
+      `<button class="btn btn--primary btn--sm" onclick="toast('New API key — issued by the live backend at go-live')">+ Generate key</button>`)));
+  V.push(view("webhooks",
+    panel("Webhook endpoints", tbl(["Endpoint","URL","Events","Status","Success rate"], webhooks.map(r=>`<tr><td><b>${r[0]}</b></td><td class="mono" style="font-size:11px;">${r[1]}</td><td>${r[2]}</td><td>${pf(r[3])}</td><td>${r[4]}</td></tr>`).join("")),
+      `<button class="btn btn--primary btn--sm" onclick="toast('Add endpoint — connects on the live backend')">+ Add endpoint</button>`)));
+  V.push(view("integrations",
+    panel("Integrations", tbl(["Integration","Category","Status","Last sync","Health"], integrations.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${pf(r[2])}</td><td>${r[3]}</td><td>${pf(r[4])}</td></tr>`).join(""))
+    )));
+
+  // Billing
+  V.push(view("credits", `
+    <div class="stat-grid">
+      ${stat("Marketing credits","31,580","Available","t")}
+      ${stat("Utility credits","14,240","Available","t")}
+      ${stat("Used this period","18,420","")}
+      ${stat("Low-credit alert","10,000","Threshold")}
+    </div>
+    ${panel("Usage breakdown", [["Campaign sends","12,480 credits"],["Automation messages","4,280 credits"],["Inbox replies (free service window)","0 credits"],["Other usage","1,660 credits"]].map(x=>listRow(x[0], x[1], "")).join(""))}
+    ${panel("Active plan", listRow((me.plan || "silver").toUpperCase() + " pack", "One-time message pack · top up anytime from Recharge", pf("Active")) + (pendingAccount ? listRow("Account verification","Messaging unlocks after admin approval", pf("Pending")) : ""))}
+  `));
+
+  V.push(view("recharge", `
+    ${panel("Marketing message packs", `<div class="recharge-grid">
+      ${[["SILVER","10,000 msgs","₹8,600"],["GOLD","50,000 msgs","₹41,000"],["PLATINUM","1,00,000 msgs","₹80,000"]].map(p=>`<div class="stat-card" style="text-align:center;"><div class="lbl mono">${p[0]}</div><div class="val" style="margin:6px 0;">${p[2]}</div><div class="lbl">${p[1]} · one-time</div><button class="btn btn--primary btn--sm" style="margin-top:12px;" onclick="buyPack('${p[0]} Marketing pack — ${p[2]}')">Buy pack</button></div>`).join("")}
+    </div>`)}
+    ${panel("Utility message packs", `<div class="recharge-grid">
+      ${[["SILVER","10,000 msgs","₹3,000"],["GOLD","50,000 msgs","₹9,000"],["PLATINUM","1,00,000 msgs","₹15,000"]].map(p=>`<div class="stat-card" style="text-align:center;"><div class="lbl mono">${p[0]}</div><div class="val" style="margin:6px 0;">${p[2]}</div><div class="lbl">${p[1]} · one-time</div><button class="btn btn--primary btn--sm" style="margin-top:12px;" onclick="buyPack('${p[0]} Utility pack — ${p[2]}')">Buy pack</button></div>`).join("")}
+    </div>`)}
+    ${panel("Automation subscription", `<div class="recharge-grid">
+      ${[["STARTER","5 workflows","₹999/mo"],["GROWTH","20 workflows","₹1,999/mo"],["PRO · AI","50 workflows","₹3,999/mo"]].map(p=>`<div class="stat-card" style="text-align:center;"><div class="lbl mono">${p[0]}</div><div class="val" style="margin:6px 0;">${p[2]}</div><div class="lbl">${p[1]} · monthly</div><button class="btn btn--violet btn--sm" style="margin-top:12px;" onclick="buyPack('Automation ${p[0]} — ${p[2]}')">Subscribe</button></div>`).join("")}
+    </div><p class="sub" style="font-size:12px; margin-top:14px;">Full plan details on the <a href="pricing.html" style="color:var(--violet-deep); text-decoration:underline;">pricing page</a>. GST and Meta conversation charges shown at checkout.</p>`)}
+  `));
+
+  V.push(view("transactions", panel("Transactions", tbl(["Transaction","Date","Description","Type","Credits","Amount"], transactions.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td><b>${r[2]}</b></td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join("")))));
+  V.push(view("invoices", panel("Invoices", tbl(["Invoice","Date","Subtotal","GST (18%)","Total","Status"], invoices.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><b>${r[4]}</b></td><td>${pf(r[5])}</td></tr>`).join("")),
+    `<button class="btn btn--ghost btn--sm" onclick="toast('Invoice PDFs download from the live backend')">Download all</button>`)));
+
+  // Workspace
+  V.push(view("notifications", panel("Notification center",
+    [["Template festive_preview_v1 approved","2 min ago","Success"],["Campaign Summer Sale completed","1 hr ago","Success"],["Automation execution failed — Campaign Reply Router","3 hrs ago","Failed"],["Recharge successful — Gold Marketing Pack","Yesterday","Success"],["New team invitation pending","2 days ago","Pending"]]
+    .map(n=>listRow(n[0], n[1], pf(n[2]))).join(""))));
+  V.push(view("activity", panel("Activity logs", tbl(["Log","Time","User","Module","Event","Status"], activity.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]} ago</td><td>${r[2]}</td><td>${r[3]}</td><td><b>${r[4]}</b></td><td>${pf(r[5])}</td></tr>`).join("")))));
+
+  V.push(view("support", `
+    ${panel("How can we help?", `<div class="field"><input placeholder="Search help articles — e.g. template rejected, recharge, webhook…" style="width:100%; padding:11px; border:1px solid var(--line); border-radius:10px; font:inherit;"></div>`,
+      `<button class="btn btn--primary btn--sm" onclick="raiseTicketModal()">+ Raise ticket</button>`)}
+    ${panel("My support tickets", `<div style="overflow:auto;"><table><thead><tr><th>Ticket</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead><tbody id="ticketsBody"></tbody></table></div>`)}
+    ${panel("Frequently asked", ["How do I connect my WhatsApp Business number?","Why was my template rejected?","How do credits and packs work?","How do I retry a failed automation?","Where can I download invoices?"].map(q=>listRow(q,"Help article",`<button class="btn btn--ghost btn--sm" onclick="toast('Help article opens in the knowledge base')">Read</button>`)).join(""))}
+  `));
+
+  document.getElementById("genViews").innerHTML = V.join("");
+
+  // ---------- Dynamic tables & modal actions ----------
+  window.filterTable = function (input, bodyId) {
+    const q = input.value.toLowerCase();
+    document.querySelectorAll("#" + bodyId + " tr").forEach(r => r.style.display = r.innerText.toLowerCase().includes(q) ? "" : "none");
+  };
+
+  function renderTemplates() {
+    document.getElementById("templatesBody").innerHTML = templates.map(t =>
+      `<tr><td class="mono"><b>${t.name}</b></td><td>${t.cat}</td><td>${t.lang}</td><td>${pf(t.status)}</td><td>${t.quality}</td><td>${t.usage}</td></tr>`).join("");
+  }
+  window.newTemplateModal = function () {
+    openModal("New WhatsApp template", `
+      <div class="field"><label>Template name</label><input id="ntName" placeholder="lowercase_with_underscores"></div>
+      <div class="field-row">
+        <div class="field"><label>Category</label><select id="ntCat"><option>Marketing</option><option>Utility</option></select></div>
+        <div class="field"><label>Language</label><select id="ntLang"><option>English</option><option>Hindi</option></select></div>
+      </div>
+      <div class="field"><label>Message body</label><textarea id="ntBody" rows="3" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:9px; font:inherit;" placeholder="Hi {{1}}, your order {{2}} has shipped!"></textarea></div>
+      <button class="btn btn--primary btn--block" onclick="submitTemplate()">Submit for Meta review</button>`);
+  };
+  window.submitTemplate = function () {
+    const name = document.getElementById("ntName").value.trim().toLowerCase().replace(/\s+/g, "_");
+    if (!name) { document.getElementById("ntName").focus(); return; }
+    templates.unshift({ name, cat: document.getElementById("ntCat").value, lang: document.getElementById("ntLang").value, status: "Pending", quality: "—", usage: "0" });
+    renderTemplates(); closeModal(); toast("Template submitted — Meta review usually takes a few minutes to 24h");
+  };
+
+  function renderContacts() {
+    document.getElementById("contactsBody").innerHTML = contacts.map(c =>
+      `<tr><td><b>${c[0]}</b></td><td>${c[1]}</td><td>${pf(c[2])}</td><td>${pf(c[3])}</td><td>${c[4]}</td></tr>`).join("");
+  }
+  window.addContactModal = function () {
+    openModal("Add contact", `
+      <div class="field"><label>Full name</label><input id="ncoName" placeholder="Customer name"></div>
+      <div class="field-row">
+        <div class="field"><label>WhatsApp number</label><input id="ncoPhone" placeholder="+91 XXXXX XXXXX"></div>
+        <div class="field"><label>Tag</label><select id="ncoTag"><option>Lead</option><option>Customer</option><option>VIP</option></select></div>
+      </div>
+      <p class="sub" style="font-size:11.5px;">Only opted-in contacts can receive marketing messages (WhatsApp policy).</p>
+      <button class="btn btn--primary btn--block" onclick="saveContact()">Add contact</button>`);
+  };
+  window.saveContact = function () {
+    const n = document.getElementById("ncoName").value.trim();
+    if (!n) { document.getElementById("ncoName").focus(); return; }
+    contacts.unshift([n, document.getElementById("ncoPhone").value || "—", document.getElementById("ncoTag").value, "Yes", "Just now"]);
+    renderContacts(); closeModal(); toast("Contact added");
+  };
+
+  function renderWorkflows() {
+    document.getElementById("workflowsBody").innerHTML = workflows.map((w, i) =>
+      `<tr><td><b>${w[0]}</b></td><td>${w[1]}</td><td>${pf(w[2])}</td><td>${w[3]}</td><td>${w[4]}</td><td>${w[5]}</td><td><button class="btn btn--ghost btn--sm" onclick="toggleWorkflow(${i})">${w[2] === "Active" ? "Pause" : "Resume"}</button></td></tr>`).join("");
+  }
+  window.toggleWorkflow = function (i) {
+    workflows[i][2] = workflows[i][2] === "Active" ? "Paused" : "Active";
+    renderWorkflows(); toast("Workflow " + workflows[i][2].toLowerCase());
+  };
+  window.newWorkflowModal = function () {
+    openModal("New workflow", `
+      <div class="field"><label>Workflow name</label><input id="nwName" placeholder="e.g. Abandoned cart recovery"></div>
+      <div class="field"><label>Trigger</label><select id="nwTrigger"><option>Incoming message</option><option>Tag added</option><option>Order event</option><option>Customer reply</option><option>Scheduled time</option></select></div>
+      <button class="btn btn--primary btn--block" onclick="saveWorkflow()">Create workflow</button>`);
+  };
+  window.saveWorkflow = function () {
+    const n = document.getElementById("nwName").value.trim();
+    if (!n) { document.getElementById("nwName").focus(); return; }
+    workflows.unshift([n, document.getElementById("nwTrigger").value, "Active", "0", "—", "Just created"]);
+    renderWorkflows(); closeModal(); toast("Workflow created and activated");
+  };
+
+  function renderMembers() {
+    document.getElementById("membersBody").innerHTML = members.map(m =>
+      `<tr><td><b>${m[0]}</b></td><td>${m[1]}</td><td>${pf(m[2])}</td><td>${pf(m[3])}</td><td>${m[4]}</td><td>${m[5]}</td></tr>`).join("");
+  }
+  window.inviteModal = function () {
+    openModal("Invite team member", `
+      <div class="field"><label>Work email</label><input id="invEmail" type="email" placeholder="teammate@company.com"></div>
+      <div class="field"><label>Role</label><select id="invRole"><option>Agent</option><option>Manager</option><option>Admin</option><option>Analyst</option></select></div>
+      <button class="btn btn--primary btn--block" onclick="sendInvite()">Send invite</button>`);
+  };
+  window.sendInvite = function () {
+    const e = document.getElementById("invEmail").value.trim();
+    if (!e) { document.getElementById("invEmail").focus(); return; }
+    members.push([e, "—", document.getElementById("invRole").value, "Pending", "—", "—"]);
+    renderMembers(); closeModal(); toast("Invitation sent");
+  };
+
+  function renderTickets() {
+    document.getElementById("ticketsBody").innerHTML = tickets.map(t =>
+      `<tr><td class="mono">${t[0]}</td><td><b>${t[1]}</b></td><td>${t[2]}</td><td>${pf(t[3])}</td><td>${pf(t[4])}</td><td>${t[5]}</td></tr>`).join("");
+  }
+  window.raiseTicketModal = function () {
+    openModal("Raise a support ticket", `
+      <div class="field"><label>Subject</label><input id="tkSubject" placeholder="Describe the issue briefly"></div>
+      <div class="field-row">
+        <div class="field"><label>Category</label><select id="tkCat"><option>WhatsApp / Templates</option><option>Campaigns</option><option>Automation</option><option>Billing</option><option>Developers</option></select></div>
+        <div class="field"><label>Priority</label><select id="tkPri"><option>Normal</option><option>High</option></select></div>
+      </div>
+      <button class="btn btn--primary btn--block" onclick="saveTicket()">Submit ticket</button>`);
+  };
+  window.saveTicket = function () {
+    const s = document.getElementById("tkSubject").value.trim();
+    if (!s) { document.getElementById("tkSubject").focus(); return; }
+    tickets.unshift(["TKT-" + Math.floor(10000 + Math.random() * 89999), s, document.getElementById("tkCat").value, document.getElementById("tkPri").value, "Open", "Just now"]);
+    renderTickets(); closeModal(); toast("Ticket submitted — our team will respond by email");
+  };
+
+  window.buyPack = function (label) {
+    openModal("Checkout — " + label, `
+      <p class="sub" style="font-size:13px;">You're buying <b>${label}</b>. On the live platform this opens the Razorpay payment gateway; credits activate automatically after payment confirmation.</p>
+      <div class="field" style="margin-top:12px;"><label>GSTIN for invoice (optional)</label><input value="${me.gstin || ""}" placeholder="Your GSTIN"></div>
+      <button class="btn btn--primary btn--block" onclick="closeModal(); toast('Demo checkout complete — credits activate on the live backend')">Proceed to payment</button>`);
+  };
+
+  function renderCreports() {
+    document.getElementById("creportsBody").innerHTML = campaigns.map(c => {
+      const d = Math.round(c.sent * c.delivered / 100), rd = Math.round(c.sent * (c.read || 0) / 100), rp = Math.round(c.sent * (c.replied || 0) / 100);
+      return `<tr><td><b>${c.name}</b></td><td>${c.sent.toLocaleString()}</td><td>${d.toLocaleString()}</td><td>${rd.toLocaleString()}</td><td>${rp.toLocaleString()}</td><td>${c.delivered}%</td></tr>`;
+    }).join("");
+  }
+
+  // ---------- Inbox (live chat demo) ----------
+  const conversations = [
+    { id:1, name:"Priya Mehta", unread:2, msgs:[
+      { from:"in", text:"Hi, is the blue kurta set back in stock?", t:"10:02 AM" },
+      { from:"out", text:"Yes! Back in stock in sizes S–XL. Want the payment link?", t:"10:05 AM" },
+      { from:"in", text:"Yes please, and does it ship to Pune?", t:"10:07 AM" } ]},
+    { id:2, name:"Rahul Verma", unread:0, msgs:[
+      { from:"in", text:"What are your store timings this weekend?", t:"Yesterday" },
+      { from:"out", text:"We're open 10 AM – 9 PM both days. See you!", t:"Yesterday" } ]},
+    { id:3, name:"Neha Singh", unread:0, msgs:[
+      { from:"in", text:"Thanks for the quick delivery!", t:"2 days ago" },
+      { from:"out", text:"So glad it arrived on time, Neha! Use code THANKYOU10 on your next order.", t:"2 days ago" } ]},
+    { id:4, name:"Karan Patel", unread:1, msgs:[
+      { from:"in", text:"Can I exchange the jacket for a bigger size?", t:"5h ago" } ]},
+  ];
+  let activeConvo = conversations[0].id;
+
+  function renderInboxList() {
+    document.getElementById("inboxList").innerHTML = `
+      <div class="inbox-search"><input placeholder="Search conversations…"></div>
+      ${conversations.map(c => {
+        const last = c.msgs[c.msgs.length - 1];
+        return `<div class="convo ${c.id === activeConvo ? "active" : ""}" onclick="selectConvo(${c.id})">
+          <span class="chan-dot" style="background:#17B8A6"></span>
+          <div class="meta"><div class="top-row"><span class="name">${c.name}</span><span class="time">${last.t}</span></div><div class="preview">${last.from === "out" ? "You: " : ""}${last.text}</div></div>
+          ${c.unread ? `<span class="unread">${c.unread}</span>` : ""}
+        </div>`;
+      }).join("")}`;
+  }
+
+  function renderThread() {
+    const convo = conversations.find(c => c.id === activeConvo);
+    convo.unread = 0;
+    document.getElementById("inboxThread").innerHTML = `
+      <div class="thread-head">
+        <div class="who"><span class="avatar">${convo.name.split(" ").map(w=>w[0]).slice(0,2).join("")}</span><div><div style="font-weight:700; font-size:14px;">${convo.name}</div><div style="font-size:11.5px; color:#17B8A6;">WhatsApp · service window open</div></div></div>
+        <span class="pill good">Active</span>
+      </div>
+      <div class="thread-body" id="threadBody">${convo.msgs.map(m => `<div class="bubble ${m.from}">${m.text}<span class="tstamp">${m.t}</span></div>`).join("")}</div>
+      <div class="quick-replies">
+        <button onclick="quickReply('Thanks for reaching out — one moment please!')">Thanks, one moment</button>
+        <button onclick="quickReply('Yes, that is available. Want me to share the payment link?')">Share payment link</button>
+        <button onclick="quickReply('Connecting you with our support team right away.')">Escalate to agent</button>
+      </div>
+      <form class="thread-input" id="replyForm"><input id="replyInput" placeholder="Type a message…" autocomplete="off"><button type="submit" class="btn btn--primary btn--sm">Send</button></form>`;
+    document.getElementById("threadBody").scrollTop = 999999;
+    document.getElementById("replyForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = document.getElementById("replyInput");
+      if (!input.value.trim()) return;
+      quickReply(input.value.trim());
+    });
+    renderInboxList();
+  }
+  window.selectConvo = function (id) { activeConvo = id; renderThread(); };
+  window.quickReply = function (text) {
+    const convo = conversations.find(c => c.id === activeConvo);
+    convo.msgs.push({ from: "out", text, t: "Just now" });
+    renderThread();
+  };
+
+  // ---------- Campaign list + wizard ----------
+  function renderCampaigns() {
+    document.getElementById("campaignsBody").innerHTML = campaigns.map((c, i) =>
+      `<tr><td><b>${c.name}</b></td><td>${c.cat}</td><td>${c.sent.toLocaleString()}</td><td>${c.delivered ? c.delivered + "%" : "—"}</td><td>${c.read ? c.read + "%" : "—"}</td><td>${pf(c.status)}</td><td><button class="btn btn--ghost btn--sm" onclick="openReport(${i})">View report</button></td></tr>`).join("");
+    renderCreports();
+  }
+  document.getElementById("campaignSearch").addEventListener("input", function(){ filterTable(this, "campaignsBody"); });
+  document.getElementById("campaignFilter").addEventListener("change", function(){
+    const v = this.value;
+    document.querySelectorAll("#campaignsBody tr").forEach(r => r.style.display = (v === "All statuses" || r.innerText.includes(v)) ? "" : "none");
+  });
+
+  let cStep = 1, cCategory = "Marketing", cAudience = "All contacts", cTemplate = null, cSendNow = true;
+  const listPanel = document.getElementById("campaignListPanel");
+  const wizard = document.getElementById("campaignWizard");
+  const reportPanel = document.getElementById("campaignReport");
+  function showOnly(panelEl) {
+    wizard.classList.toggle("open", panelEl === wizard);
+    reportPanel.classList.toggle("open", panelEl === reportPanel);
+    listPanel.style.display = panelEl === listPanel ? "block" : "none";
+  }
+  showOnly(listPanel);
+
+  document.querySelectorAll("#cCategoryChips .chip-opt").forEach(chip => {
+    chip.addEventListener("click", () => {
+      cCategory = chip.dataset.cat;
+      document.querySelectorAll("#cCategoryChips .chip-opt").forEach(el => el.classList.toggle("selected", el === chip));
+      renderTemplateGrid();
+    });
+  });
+
+  const audiences = [["All contacts","24,890 people"],["Customers only","9,410 people"],["Leads only","6,220 people"],["Custom upload (CSV)","Upload a fresh list"]];
+  document.getElementById("cAudienceGrid").innerHTML = audiences.map(([n,d]) =>
+    `<div class="pick-card ${n === cAudience ? "selected" : ""}" data-a="${n}" onclick="pickAudience(this)"><b>${n}</b><span>${d}</span></div>`).join("");
+  window.pickAudience = function (el) {
+    cAudience = el.dataset.a;
+    document.querySelectorAll("#cAudienceGrid .pick-card").forEach(x => x.classList.toggle("selected", x === el));
+  };
+
+  function renderTemplateGrid() {
+    const eligible = templates.filter(t => t.cat === cCategory && t.status === "Approved");
+    const grid = document.getElementById("cTemplateGrid");
+    cTemplate = eligible[0] || null;
+    if (!eligible.length) { grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">No approved ${cCategory} templates yet — create one in Templates first.</div>`; return; }
+    grid.innerHTML = eligible.map(t =>
+      `<div class="pick-card ${cTemplate && cTemplate.name === t.name ? "selected" : ""}" data-t="${t.name}" onclick="pickTemplate(this)"><b class="mono" style="font-size:13px;">${t.name}</b><span>Approved · ${t.cat} · ${t.lang}</span></div>`).join("");
+  }
+  window.pickTemplate = function (el) {
+    cTemplate = templates.find(t => t.name === el.dataset.t);
+    document.querySelectorAll("#cTemplateGrid .pick-card").forEach(x => x.classList.toggle("selected", x === el));
+  };
+
+  document.getElementById("sendNowChip").addEventListener("click", () => {
+    cSendNow = true;
+    document.getElementById("sendNowChip").classList.add("selected");
+    document.getElementById("scheduleChip").classList.remove("selected");
+    document.getElementById("scheduleField").style.display = "none";
+  });
+  document.getElementById("scheduleChip").addEventListener("click", () => {
+    cSendNow = false;
+    document.getElementById("scheduleChip").classList.add("selected");
+    document.getElementById("sendNowChip").classList.remove("selected");
+    document.getElementById("scheduleField").style.display = "block";
+  });
+
+  function showCStep(n) {
+    document.querySelectorAll("#campaignWizard .wizard-panel").forEach(p => p.classList.toggle("active", +p.dataset.cpanel === n));
+    document.querySelectorAll("#campaignWizard .wizard-steps span").forEach(s => {
+      const sn = +s.dataset.cs;
+      s.classList.toggle("done", sn < n); s.classList.toggle("active", sn === n);
+    });
+    document.getElementById("cStepNum").textContent = n;
+    document.getElementById("cBack").style.display = n > 1 ? "inline-flex" : "none";
+    document.getElementById("cNext").style.display = n < 5 ? "inline-flex" : "none";
+    document.getElementById("cLaunch").style.display = n === 5 ? "inline-flex" : "none";
+    if (n === 5) {
+      document.getElementById("cReview").innerHTML = `
+        <div class="review-row"><span>Campaign name</span><span>${document.getElementById("cName").value || "Untitled campaign"}</span></div>
+        <div class="review-row"><span>Category</span><span>${cCategory} <small style="color:var(--text-muted);">(uses ${cCategory} credits)</small></span></div>
+        <div class="review-row"><span>Audience</span><span>${cAudience}</span></div>
+        <div class="review-row"><span>Template</span><span class="mono">${cTemplate ? cTemplate.name : "—"}</span></div>
+        <div class="review-row"><span>Delivery</span><span>${cSendNow ? "Send now" : "Scheduled — " + (document.getElementById("cSchedule").value || "not set")}</span></div>`;
+    }
+  }
+  document.getElementById("newCampaignBtn").addEventListener("click", () => {
+    if (pendingAccount) { toast("Campaigns unlock once your business is verified by the Multiflow team"); return; }
+    cStep = 1; renderTemplateGrid(); showCStep(1); showOnly(wizard);
+  });
+  document.getElementById("cancelWizard").addEventListener("click", () => showOnly(listPanel));
+  document.getElementById("cNext").addEventListener("click", () => { cStep = Math.min(5, cStep + 1); showCStep(cStep); });
+  document.getElementById("cBack").addEventListener("click", () => { cStep = Math.max(1, cStep - 1); showCStep(cStep); });
+  document.getElementById("cLaunch").addEventListener("click", () => {
+    campaigns.unshift({
+      name: document.getElementById("cName").value || "Untitled campaign",
+      cat: cCategory,
+      sent: cAudience.startsWith("All") ? 24890 : cAudience.startsWith("Customers") ? 9410 : cAudience.startsWith("Leads") ? 6220 : 500,
+      delivered: 0, read: 0, replied: 0,
+      status: cSendNow ? "Running" : "Scheduled",
+    });
+    renderCampaigns(); showOnly(listPanel);
+    toast(cSendNow ? "Campaign launched — delivery starts now" : "Campaign scheduled");
+  });
+
+  let reportChartInstance = null;
+  window.openReport = function (idx) {
+    const c = campaigns[idx];
+    document.getElementById("reportTitle").textContent = c.name + " — report";
+    const sent = c.sent;
+    const delivered = Math.round(sent * (c.delivered / 100));
+    const read = Math.round(sent * ((c.read || 0) / 100));
+    const replied = Math.round(sent * ((c.replied || 0) / 100));
+    const rowsF = [["Sent", sent, "#0B1220"], ["Delivered", delivered, "#17B8A6"], ["Read", read, "#4C3FC0"], ["Replied", replied, "#FF6B4A"]];
+    document.getElementById("reportFunnel").innerHTML = rowsF.map(([label, val, color]) =>
+      `<div class="funnel-row"><div class="funnel-label">${label}</div><div class="funnel-bar-track"><div class="funnel-bar" style="width:${Math.max(6, (val / sent) * 100)}%; background:${color};">${((val / sent) * 100).toFixed(1)}%</div></div><div class="funnel-num">${val.toLocaleString()}</div></div>`).join("");
+    if (window.Chart) {
+      if (reportChartInstance) reportChartInstance.destroy();
+      reportChartInstance = new Chart(document.getElementById("reportChart"), {
+        type: "line",
+        data: { labels:["Hr 1","Hr 2","Hr 4","Hr 8","Hr 12","Hr 24"], datasets:[{ label:"Cumulative delivered", data:[0.2,0.45,0.68,0.84,0.93,1].map(f => Math.round(delivered * f)), borderColor:"#17B8A6", backgroundColor:"#17B8A622", fill:true, tension:.4, pointRadius:0 }] },
+        options: { plugins:{ legend:{ display:false } } }
+      });
+    }
+    showOnly(reportPanel);
+  };
+  document.getElementById("closeReport").addEventListener("click", () => showOnly(listPanel));
+
+  // ---------- Clients (reseller only) ----------
+  if (me.accountType === "reseller") {
+    const clientBody = document.getElementById("clientsBody");
+    const addPanel = document.getElementById("addClientPanel");
+    const clientsListPanel = document.getElementById("clientsListPanel");
+    function renderClients() {
+      const clients = listMyClients(me.id);
+      if (!clients.length) { clientBody.innerHTML = `<tr><td colspan="5"><div class="empty">No clients yet — add your first one.</div></td></tr>`; return; }
+      clientBody.innerHTML = clients.map(c => `
+        <tr><td><b>${c.clientName}</b></td>
+        <td>${c.clientEmail || "—"}${c.clientPhone ? " · " + c.clientPhone : ""}</td>
+        <td><span class="pill brand">${c.plan || "silver"}</span></td>
+        <td><span class="pill ${c.status === "active" ? "good" : "bad"}">${c.status}</span></td>
+        <td><button class="btn btn--ghost btn--sm" onclick="toggleClientStatus('${c.id}','${c.status}')">${c.status === "active" ? "Suspend" : "Reactivate"}</button></td></tr>`).join("");
+    }
+    window.toggleClientStatus = function (id, cur) { setClientStatus(id, cur === "active" ? "suspended" : "active"); renderClients(); };
+    document.getElementById("addClientBtn").addEventListener("click", () => { clientsListPanel.style.display = "none"; addPanel.classList.add("open"); });
+    document.getElementById("cancelAddClient").addEventListener("click", () => { addPanel.classList.remove("open"); clientsListPanel.style.display = "block"; });
+    document.getElementById("saveClientBtn").addEventListener("click", () => {
+      const name = document.getElementById("ncName").value;
+      if (!name) { document.getElementById("ncName").focus(); return; }
+      addClient(me.id, { name, email: document.getElementById("ncEmail").value, phone: document.getElementById("ncPhone").value, plan: document.getElementById("ncPlan").value });
+      ["ncName","ncEmail","ncPhone"].forEach(id => document.getElementById(id).value = "");
+      addPanel.classList.remove("open"); clientsListPanel.style.display = "block";
+      renderClients(); toast("Client added");
+    });
+    renderClients();
+  }
+
+  // ---------- Settings (real account data) ----------
+  document.getElementById("setName").value = me.accountName || "";
+  document.getElementById("setEmail").value = me.email || "";
+  document.getElementById("setPhone").value = me.phone || "";
+  document.getElementById("saveAccountBtn").addEventListener("click", () => {
+    const all = loadAccounts();
+    const idx = all.findIndex(a => a.id === me.id);
+    if (idx > -1) {
+      all[idx].accountName = document.getElementById("setName").value;
+      all[idx].phone = document.getElementById("setPhone").value;
+      saveAccounts(all);
+      me.accountName = all[idx].accountName;
+      document.getElementById("avatarInit").textContent = (me.accountName || "U").split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+      toast("Account settings saved");
+    }
+  });
+  document.getElementById("businessProfile").innerHTML = `
+    <div><b>Business:</b> ${me.businessName || "—"}</div>
+    <div><b>Type:</b> ${me.businessType || "—"}</div>
+    <div><b>Industry:</b> ${me.category || "—"}</div>
+    <div><b>GSTIN:</b> ${me.gstin || "Not provided"}</div>
+    <div><b>Address:</b> ${[me.address, me.city, me.state, me.pincode].filter(Boolean).join(", ") || "—"}</div>
+    <div><b>Preferred plan:</b> <span class="pill brand">${(me.plan || "silver").toUpperCase()}</span></div>
+    <div><b>Verification:</b> <span class="pill ${statusPillClass(me.status)}">${statusLabel(me.status)}</span></div>`;
+  document.getElementById("waConnection").innerHTML = `
+    <div class="list-row"><div><b>${me.waNumber || "No number submitted"}</b><span class="sub-line">WhatsApp Business number · display name "${me.displayName || me.businessName || "—"}"</span></div>${pf(pendingAccount ? "Pending" : "Connected")}</div>
+    <div class="list-row"><div><b>Meta Business verification</b><span class="sub-line">Handled by the Multiflow team during onboarding</span></div>${pf(pendingAccount ? "Pending" : "Approved")}</div>`;
+
+  // ---------- Charts ----------
+  const chartsMade = {};
+  function mkChart(id, cfg) {
+    const el = document.getElementById(id);
+    if (!el || chartsMade[id] || el.offsetParent === null) return;
+    chartsMade[id] = true;
+    new Chart(el, cfg);
+  }
+  window.drawCharts = function () {
+    if (!window.Chart) return;
+    const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    const lineOpts = { plugins:{ legend:{ position:"bottom", labels:{ boxWidth:8, font:{ size:11 } } } }, scales:{ y:{ min:80, max:100 } } };
+    mkChart("deliveryChart", { type:"line", data:{ labels:days, datasets:[
+      { label:"Marketing", data:[95,96,97,96,98,97,97], borderColor:"#6C5CE7", tension:.4, pointRadius:0 },
+      { label:"Utility", data:[97,98,98,97,99,98,99], borderColor:"#17B8A6", tension:.4, pointRadius:0 } ] }, options: lineOpts });
+    mkChart("deliveryChart2", { type:"line", data:{ labels:days, datasets:[
+      { label:"Delivery %", data:[95,96,97,96,98,97,97], borderColor:"#17B8A6", backgroundColor:"#17B8A622", fill:true, tension:.4, pointRadius:0 } ] }, options: lineOpts });
+    mkChart("volumeChart", { type:"bar", data:{ labels:days, datasets:[
+      { label:"Marketing", data:[1450,1620,1380,1890,1760,2100,2280], backgroundColor:"#6C5CE7", borderRadius:5 },
+      { label:"Utility", data:[640,720,580,810,760,880,940], backgroundColor:"#17B8A6", borderRadius:5 } ] },
+      options:{ plugins:{ legend:{ position:"bottom", labels:{ boxWidth:8, font:{ size:11 } } } }, scales:{ x:{ stacked:true }, y:{ stacked:true } } } });
+  };
+
+  // ---------- Init ----------
+  renderTemplates(); renderContacts(); renderWorkflows(); renderMembers(); renderTickets(); renderCampaigns();
+  renderInboxList(); renderThread();
+  go("overview");
+})();
+</script>
+</body>
+</html>

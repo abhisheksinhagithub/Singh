@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buy Online — Multiflow</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<meta name="description" content="Buy Multiflow message credits online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<script src="assets/partials.js"></script>
+
+<header class="page-hero">
+  <div class="wrap">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Buy Online</div>
+    <div class="eyebrow">Buy Online</div>
+    <h1 class="h1 display">Start your Multiflow purchase</h1>
+    <p class="lede" id="planLede">Choose a package, sign in or create an account, then continue to our secure payment gateway.</p>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap" style="max-width:760px;">
+    <div class="form-card">
+      <div id="planBanner" style="display:none; background:#F5F3FE; border:1px solid #E0DBFB; color:var(--violet-deep); padding:12px 16px; border-radius:10px; font-size:14px; margin-bottom:20px; font-weight:600;"></div>
+
+      <div class="steps">
+        <div class="step"><b>01 · PACKAGE</b>Select service and quantity.</div>
+        <div class="step"><b>02 · LOGIN</b>Use an existing account or create one.</div>
+        <div class="step"><b>03 · PAY</b>Continue to your gateway.</div>
+        <div class="step"><b>04 · VERIFY</b>Backend confirms payment and activation.</div>
+      </div>
+
+      <div class="notice" style="margin-top:20px;">The payment gateway is connected on the backend — this page defines the exact checkout flow it plugs into. No payment is taken until you confirm on the final step.</div>
+
+      <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn--primary" href="signup.html">Create Account</a>
+        <a class="btn btn--ghost" href="login.html">Login</a>
+        <a class="btn btn--dark" href="pricing.html">Back to Pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>writeMultiflowFooter();</script>
+<script>
+  const plan = new URLSearchParams(location.search).get("plan");
+  if (plan) {
+    const names = { silver: "Silver", gold: "Gold", platinum: "Platinum", diamond: "Diamond" };
+    const name = names[plan.toLowerCase()] || plan;
+    const banner = document.getElementById("planBanner");
+    banner.textContent = `Selected plan: ${name}. You'll confirm this before any payment is taken.`;
+    banner.style.display = "block";
+    document.getElementById("planLede").textContent = `You've selected the ${name} plan. Sign in or create an account to continue to payment.`;
+  }
+</script>
+</body>
+</html>
